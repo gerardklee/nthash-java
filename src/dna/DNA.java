@@ -54,6 +54,66 @@ public class DNA {
 	
 	/**
 	 * 
+	 * @param seqLength length of sequence to be generated
+	 * @param kmerLength length of k-mer sequence to be generated
+	 * @param warmUpEnd end point for warm up loop
+	 * @param endPoint end point for actual test loop
+	 * @return average of all test cases when using single core
+	 */
+	public double getAverage(int seqLength, int kmerLength, int warmUpEnd, int endPoint) {
+		// warm up the method you want to try
+		for (int i = 0; i < warmUpEnd; i++) {
+			DNA randomseq = new DNA(seqLength);
+			DNA randomkmer = new DNA(kmerLength);
+			randomseq.getIndex(randomkmer);
+		}
+		
+		// get elapsed time
+		DNA randomseq1 = new DNA(seqLength);
+		DNA randomkmer1 = new DNA(kmerLength);
+		double cnt = 0;
+		for (int i = 0; i < endPoint; i++) {
+			long start = System.nanoTime();
+			randomseq1.getIndex(randomkmer1);
+			long elapse = System.nanoTime() - start;
+			cnt += elapse;
+		}
+		double avg = cnt / endPoint * 1e-6;
+		return avg;
+	}
+	
+	/**
+	 * 
+	 * @param seqLength length of sequence to be generated
+	 * @param kmerLength length of k-mer sequence to be generated
+	 * @param warmUpEnd end point for warm up loop
+	 * @param endPoint end point for actual test loop
+	 * @return average of all test cases when using multi-core
+	 */
+	public double getAverageFast(int seqLength, int kmerLength, int warmUpEnd, int endPoint) {
+		// warm up the method you want ty try
+		for (int i = 0; i < warmUpEnd; i++) {
+			DNA randomseq = new DNA(seqLength);
+			DNA randomkmer = new DNA(kmerLength);
+			randomseq.getIndexFast(randomkmer);
+		}
+		
+		// get elapsed time
+		DNA randomseq1 = new DNA(seqLength);
+		DNA randomkmer1 = new DNA(kmerLength);
+		double cnt = 0;
+		for (int i = 0; i < endPoint; i++) {
+			long start = System.nanoTime();
+			randomseq1.getIndexFast(randomkmer1);
+			long elapse = System.nanoTime() - start;
+			cnt += elapse;
+		}
+		double avg = cnt / endPoint * 1e-6;
+		return avg;
+	}
+	
+	/**
+	 * 
 	 * @param kmer
 	 * @return list of first index of the sequence when the k-mer finds its match in the sequence.
 	 */
@@ -88,7 +148,6 @@ public class DNA {
 	 * @param index
 	 * @return true if the k-mer finds its match in the sequence. Otherwise, false.
 	 */
-
 	public boolean isSame(DNA kmer, int index) {
 		for (int i = 0; i < kmer.bases.size(); i++) {
 			if (kmer.bases.get(i) != bases.get(index + i)) {
@@ -116,6 +175,7 @@ public class DNA {
 		}
 		
 	}
+	
 	/**
 	 * 
 	 * @param kmer
