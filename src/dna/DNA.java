@@ -148,7 +148,6 @@ public class DNA {
 		
 		for (Thread thread : threads) {
 			try {
-				//thread.start(); 
 				thread.join(); // one thread is waiting until another thread completes its execution
 			} catch (InterruptedException e) {
 				e.printStackTrace(); 
