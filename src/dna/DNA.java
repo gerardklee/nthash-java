@@ -91,7 +91,7 @@ public class DNA {
 	 * @return average of all test cases when using multi-core
 	 */
 	public double getAverageFast(int seqLength, int kmerLength, int warmUpEnd, int endPoint) {
-		// warm up the method you want ty try
+		// warm up the method you want to try
 		for (int i = 0; i < warmUpEnd; i++) {
 			DNA randomseq = new DNA(seqLength);
 			DNA randomkmer = new DNA(kmerLength);
