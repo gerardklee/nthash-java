@@ -39,4 +39,15 @@ public class TestDNA {
 		
 		assertEquals(expected, actual);		
 	}
+	
+	@Test
+	public void testDNA4() {
+		DNA test = new DNA("AGTCGTG");
+		DNA kmer = new DNA("GTG");
+		
+		List<Integer> expected = List.of(4);
+		List<Integer> actual = test.getIndexFast(kmer);
+		
+		assertEquals(expected, actual);		
+	}
 }

@@ -1,6 +1,7 @@
 package dna;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -20,6 +21,10 @@ public class DNA {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param length of random sequence to be generated.
+	 */
 	public DNA(int n) {
 		bases = new ArrayList<>();
 		Random r = new Random();
@@ -50,11 +55,11 @@ public class DNA {
 	/**
 	 * 
 	 * @param kmer
-	 * @return
+	 * @return list of first index of the sequence when the k-mer finds its match in the sequence.
 	 */
 	public List<Integer> getIndex(DNA kmer) {
 		List<Integer> indices = new ArrayList<>();
-		for(int i = 0; i < bases.size() - kmer.bases.size() + 1; i++) {
+		for (int i = 0; i < bases.size() - kmer.bases.size() + 1; i++) {
 			if (isSame(kmer, i)) {
 				indices.add(i);
 			}
@@ -69,7 +74,7 @@ public class DNA {
 	 */
 	public List<Integer> getIndexRange(DNA kmer, int start, int end) {
 		List<Integer> indices = new ArrayList<>();
-		for(int i = start; i < end; i++) {
+		for (int i = start; i < end; i++) {
 			if (isSame(kmer, i)) {
 				indices.add(i);
 			}
@@ -81,7 +86,7 @@ public class DNA {
 	 * 
 	 * @param kmer
 	 * @param index
-	 * @return
+	 * @return true if the k-mer finds its match in the sequence. Otherwise, false.
 	 */
 
 	public boolean isSame(DNA kmer, int index) {
@@ -92,6 +97,7 @@ public class DNA {
 		}
 		return true;
 	}
+	
 	private class GetIndex implements Runnable {
 		public volatile List<Integer> returnValue;
 		private DNA kmer;
@@ -126,22 +132,32 @@ public class DNA {
 		for (int i = 0; i < cores; i++) {
 			int startingPoint = i * divSize;
 			int endPoint = startingPoint + divSize;
+			if (i == cores - 1) {
+				endPoint = totalSize;
+			}
 			GetIndex output = new GetIndex(kmer, startingPoint, endPoint);
 			outputs.add(output);
 			Thread thread = new Thread(output);
 			threads.add(thread);
+			//thread.start(); // starts a new thread and calls run in runnable interface in that new thread
+		}
+		
+		for (Thread thread : threads) {
 			thread.start();
 		}
+		
 		for (Thread thread : threads) {
 			try {
-				thread.join();
+				//thread.start(); 
+				thread.join(); // one thread is waiting until another thread completes its execution
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				e.printStackTrace(); 
 			}
 		}
 		for (GetIndex output : outputs) { 
 			combinedOutput.addAll(output.returnValue);
 		}
+		Collections.sort(combinedOutput);
 		
 		return combinedOutput;
 	}
