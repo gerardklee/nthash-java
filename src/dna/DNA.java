@@ -1,5 +1,4 @@
 package dna;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -9,7 +8,7 @@ public class DNA {
 	private List<Base> bases;
 	
 	public DNA(String dnaString) {
-
+		System.out.println("I AM ON ROLLINGHASH BRANCH");
 		bases = new ArrayList<>();
 		for (int i = 0; i < dnaString.length(); i++) {
 			// convert char character in string to base
