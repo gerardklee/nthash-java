@@ -127,7 +127,8 @@ public class DNA {
 				for (int j = 0; j < kmerString.length(); j++) {
 					char dnaChar = dnaString.charAt(i);
 					int dnaAscVal = (int) dnaChar;
-					dnaHashVal += dnaAscVal * Math.pow(2, kmerSize - i - 1);				
+					dnaHashVal += dnaAscVal * Math.pow(2, kmerSize - i - 1);		
+					System.out.println("first substring val: " + dnaHashVal);
 				}
 			}
 			
@@ -135,7 +136,7 @@ public class DNA {
 			// dnaSizeHash = 2 * (dnaHashVal - frontValue) + newComingValue
 			else {
 				char dnaChar = dnaString.charAt(i);
-				dnaHashVal = 2 * (dnaHashVal - dnaChar) + (int) dnaString.charAt(i + kmerSize - 1);
+				dnaHashVal = 2 * (dnaHashVal - (int) dnaString.charAt(i-1)  * 3) + (int) dnaString.charAt(i + kmerSize - 1);
 			}
 			System.out.println("dnaHashVal: " + dnaHashVal + ", " + "kmerHashVal: " + kmerHashVal);
 			// if hash value of substring is equal to hash value of k-mer,
@@ -149,8 +150,7 @@ public class DNA {
 				System.out.println("i value: " + i);
 			}
 		}
-		return true;
-		
+		return true;	
 	}
 	
 	private class GetIndex implements Runnable {
