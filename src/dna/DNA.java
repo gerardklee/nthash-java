@@ -1,14 +1,19 @@
 package dna;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
 public class DNA {
 	private List<Base> bases;
+	private Hashtable<Integer, String> rollhash = new Hashtable<Integer, String>();
 	
+	/**
+	 * 
+	 * @param dnaString
+	 */
 	public DNA(String dnaString) {
-		System.out.println("I AM ON ROLLINGHASH BRANCH");
 		bases = new ArrayList<>();
 		for (int i = 0; i < dnaString.length(); i++) {
 			// convert char character in string to base
@@ -94,6 +99,29 @@ public class DNA {
 			}
 		}
 		return true;
+	}
+	
+	/**
+	 * 
+	 * @param kmer
+	 * @return
+	 */
+	public boolean isSameFast(DNA kmer) {
+		int dnaSize = bases.size();
+		int kmerSize = kmer.bases.size();
+		int dnaSizeHash = 0, kmerSizeHash = 0, power = 1;
+		
+		//hash value of kmer
+		String kmerString = kmer.toString();
+		for (int i = 0; i < kmerSize; i++) {
+			char kmerChar = kmerString.charAt(i);
+			int charAsc = (int) kmerChar;
+			kmerSizeHash += charAsc * Math.pow(2, kmerSize - i - 1);
+		}
+		
+		
+		return true;
+		
 	}
 	
 	private class GetIndex implements Runnable {
