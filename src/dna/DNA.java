@@ -1,7 +1,6 @@
 package dna;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
@@ -106,39 +105,31 @@ public class DNA {
 	 * @return
 	 */
 	public boolean isSameFast(DNA kmer) {
-		int dnaSize = bases.size();
-		int kmerSize = kmer.bases.size();
-		int dnaHashVal = 0, kmerHashVal = 0;
-		
-		// get hash value of k-mer (conversion of character to ASCII involved)
+		int dnaHashVal = 0, kmerHashVal = 0, power = 1;	
 		String kmerString = kmer.toString();
-		for (int i = 0; i < kmerSize; i++) {
-			char kmerChar = kmerString.charAt(i);
-			int charAsc = (int) kmerChar;
-			kmerHashVal += charAsc * Math.pow(2, kmerSize - i - 1);
-		}
 		
 		// get hash value of substring of k-mer length
 		// compare the hash value of substring to that of k-mer's
 		String dnaString = bases.toString();
-		for (int i = 0; i < dnaSize - kmerSize; i++) {
-			// initializing hash value of substring
+		dnaString = dnaString.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
+		for (int i = 0; i < dnaString.length()  - kmerString.length() + 1; i++) {
+			// initializing hash value of substring at i == 0
 			if (i == 0) {
 				for (int j = 0; j < kmerString.length(); j++) {
-					char dnaChar = dnaString.charAt(i);
-					int dnaAscVal = (int) dnaChar;
-					dnaHashVal += dnaAscVal * Math.pow(2, kmerSize - i - 1);		
-					System.out.println("first substring val: " + dnaHashVal);
+					dnaHashVal += (int) dnaString.charAt(kmerString.length() - j - 1) * power;
+					kmerHashVal += (int) kmerString.charAt(kmerString.length() - j - 1) * power;
+					if (j < kmerString.length()) { power *= 2;}
 				}
 			}
 			
 			// as i moves along the sequence, calculate corresponding substring hash value
-			// dnaSizeHash = 2 * (dnaHashVal - frontValue) + newComingValue
+			// dnaSizeHash = 2 * (dnaHashVal - dnaString[i-1] * 2^(kmerLength - 1) + newComingValue 
+			// where newComingValue = dnaString[i+m-1]
 			else {
-				char dnaChar = dnaString.charAt(i);
-				dnaHashVal = 2 * (dnaHashVal - (int) dnaString.charAt(i-1)  * 3) + (int) dnaString.charAt(i + kmerSize - 1);
+				dnaHashVal = 2 * (dnaHashVal - (int) dnaString.charAt(i-1) * 
+						         (int) Math.pow(2, kmerString.length() - 1)) + 
+						         (int) dnaString.charAt(i+kmerString.length()-1); 
 			}
-			System.out.println("dnaHashVal: " + dnaHashVal + ", " + "kmerHashVal: " + kmerHashVal);
 			// if hash value of substring is equal to hash value of k-mer,
 			// compare each character in both strings
 			if (dnaHashVal == kmerHashVal) {
@@ -147,7 +138,7 @@ public class DNA {
 						return false;
 					}
 				}
-				System.out.println("i value: " + i);
+				System.out.println("found at: " + i);
 			}
 		}
 		return true;	
