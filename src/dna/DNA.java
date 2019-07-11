@@ -104,7 +104,8 @@ public class DNA {
 	 * @param kmer
 	 * @return
 	 */
-	public boolean isSameFast(DNA kmer) {
+	public List<Integer> getIndexHash(DNA kmer) {
+		List<Integer> result = new ArrayList<>();
 		int dnaHashVal = 0, kmerHashVal = 0, power = 1;	
 		String kmerString = kmer.toString();
 		
@@ -112,7 +113,7 @@ public class DNA {
 		// compare the hash value of substring to that of k-mer's
 		String dnaString = bases.toString();
 		dnaString = dnaString.replace(" ", "").replace(",", "").replace("[", "").replace("]", "");
-		for (int i = 0; i < dnaString.length()  - kmerString.length() + 1; i++) {
+		for (int i = 0; i < dnaString.length() - kmerString.length() + 1; i++) {
 			// initializing hash value of substring at i == 0
 			if (i == 0) {
 				for (int j = 0; j < kmerString.length(); j++) {
@@ -130,18 +131,19 @@ public class DNA {
 						         (int) Math.pow(2, kmerString.length() - 1)) + 
 						         (int) dnaString.charAt(i+kmerString.length()-1); 
 			}
+			
 			// if hash value of substring is equal to hash value of k-mer,
 			// compare each character in both strings
 			if (dnaHashVal == kmerHashVal) {
 				for (int j = 0; j < kmerString.length(); j++) {
 					if (dnaString.charAt(i + j) != kmerString.charAt(j)) {
-						return false;
+						return List.of();
 					}
 				}
-				System.out.println("found at: " + i);
+				result.add(i);
 			}
 		}
-		return true;	
+		return result;	
 	}
 	
 	private class GetIndex implements Runnable {
@@ -164,7 +166,7 @@ public class DNA {
 	}
 	
 	/**
-	 * 
+	 * Obtain index faster using multiple threads.
 	 * @param kmer
 	 * @return
 	 */
@@ -189,6 +191,7 @@ public class DNA {
 			//thread.start(); // starts a new thread and calls run in runnable interface in that new thread
 		}
 		
+		// start threads simultaneously
 		for (Thread thread : threads) {
 			thread.start();
 		}
