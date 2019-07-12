@@ -152,11 +152,14 @@ public class DNA {
 		int dnaSize = bases.size();
 		int k = kmer.bases.size();
 		int kmerHashVal = 0;
+		
 		// get hash code of kmer
 		for (int i = 0; i < k; i++) { 
-			kmerHashVal += kmer.bases.get(i).getValue() << k - i - 1;
+			kmerHashVal ^= kmer.bases.get(i).getValue() << k - i - 1;
 		}
 		System.out.println(kmerHashVal);
+		
+		// get 
 		return List.of();
 	}
 	private class GetIndex implements Runnable {
