@@ -100,7 +100,7 @@ public class DNA {
 	}
 	
 	/**
-	 * Hashing implemented search.
+	 * Hashing (Rabin-Karp) implemented search with non-bit operation
 	 * @param kmer
 	 * @return
 	 */
@@ -146,6 +146,19 @@ public class DNA {
 		return result;	
 	}
 	
+	public List<Integer> getIndexBit(DNA kmer) {
+		System.out.println(bases);
+		System.out.println(kmer.bases);
+		int dnaSize = bases.size();
+		int k = kmer.bases.size();
+		int kmerHashVal = 0;
+		// get hash code of kmer
+		for (int i = 0; i < k; i++) { 
+			kmerHashVal += kmer.bases.get(i).getValue() << k - i - 1;
+		}
+		System.out.println(kmerHashVal);
+		return List.of();
+	}
 	private class GetIndex implements Runnable {
 		public volatile List<Integer> returnValue;
 		private DNA kmer;
