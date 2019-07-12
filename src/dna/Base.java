@@ -1,8 +1,18 @@
 package dna;
 
 public enum Base {
-	A, T, G, C;
-
+	A(1), T(2), G(3), C(4);
+	
+	private final long value;
+	
+	Base(final long newValue) {
+		value = newValue;
+	}
+	
+	public long getValue() {
+		return value;
+	}
+	
 	@Override
 	public String toString() {
 		
