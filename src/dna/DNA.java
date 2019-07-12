@@ -146,9 +146,12 @@ public class DNA {
 		return result;	
 	}
 	
+	/**
+	 * 
+	 * @param kmer pattern to be found.
+	 * @return list of indices of matching sub k-mer from the DNA sequence.
+	 */
 	public List<Integer> getIndexBit(DNA kmer) {
-		System.out.println(bases);
-		System.out.println(kmer.bases);
 		List<Integer> result = new ArrayList<>();
 		int dnaSize = bases.size();
 		int k = kmer.bases.size();
@@ -159,7 +162,6 @@ public class DNA {
 		for (int i = 0; i < k; i++) { 
 			kmerHashVal ^= kmer.bases.get(i).getValue() << k - i - 1;
 		}
-		System.out.println("kmerHashVal: " + kmerHashVal);
 		
 		// compare each k-mer in the entire sequence to the target k-mer
 		for (int i = 0; i < dnaSize - k + 1; i++) {
@@ -175,14 +177,14 @@ public class DNA {
 			else {
 				dnaHashVal = (int) (dnaHashVal << 1 ^ bases.get(i - 1).getValue() << (k) ^ bases.get(i + k - 1).getValue());
 			}
-			System.out.println("dnaHashVal: " + dnaHashVal);	
 			
-			if (dnaHashVal == kmerHashVal) { 
+			if (dnaHashVal == kmerHashVal) {
 				result.add(i);
 			}
 		}		
 		return result;
 	}
+	
 	private class GetIndex implements Runnable {
 		public volatile List<Integer> returnValue;
 		private DNA kmer;
