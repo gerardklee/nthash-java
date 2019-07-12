@@ -159,7 +159,7 @@ public class DNA {
 		for (int i = 0; i < k; i++) { 
 			kmerHashVal ^= kmer.bases.get(i).getValue() << k - i - 1;
 		}
-		System.out.println(kmerHashVal);
+		System.out.println("kmerHashVal: " + kmerHashVal);
 		
 		// compare each k-mer in the entire sequence to the target k-mer
 		for (int i = 0; i < dnaSize - k + 1; i++) {
@@ -175,11 +175,13 @@ public class DNA {
 			else {
 				dnaHashVal = (int) (dnaHashVal << 1 ^ bases.get(i - 1).getValue() << (k) ^ bases.get(i + k - 1).getValue());
 			}
+			System.out.println("dnaHashVal: " + dnaHashVal);	
 			
-			
+			if (dnaHashVal == kmerHashVal) { 
+				result.add(i);
+			}
 		}		
-		System.out.println(dnaHashVal);
-		return List.of();
+		return result;
 	}
 	private class GetIndex implements Runnable {
 		public volatile List<Integer> returnValue;
