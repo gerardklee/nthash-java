@@ -149,17 +149,36 @@ public class DNA {
 	public List<Integer> getIndexBit(DNA kmer) {
 		System.out.println(bases);
 		System.out.println(kmer.bases);
+		List<Integer> result = new ArrayList<>();
 		int dnaSize = bases.size();
 		int k = kmer.bases.size();
 		int kmerHashVal = 0;
+		int dnaHashVal = 0;
 		
-		// get hash code of kmer
+		// get hash code of k-mer
 		for (int i = 0; i < k; i++) { 
 			kmerHashVal ^= kmer.bases.get(i).getValue() << k - i - 1;
 		}
 		System.out.println(kmerHashVal);
 		
-		// get 
+		// compare each k-mer in the entire sequence to the target k-mer
+		for (int i = 0; i < dnaSize - k + 1; i++) {
+			
+			// initializing k-mer at dna[0]
+			if (i == 0) {
+				for (int j = 0; j < k; j++) {
+					dnaHashVal ^= bases.get(j).getValue() << k - j - 1;
+				}
+			}
+			
+			// calculate k-mer at dna[i]
+			else {
+				dnaHashVal = (int) (dnaHashVal << 1 ^ bases.get(i - 1).getValue() << (k) ^ bases.get(i + k - 1).getValue());
+			}
+			
+			
+		}		
+		System.out.println(dnaHashVal);
 		return List.of();
 	}
 	private class GetIndex implements Runnable {
