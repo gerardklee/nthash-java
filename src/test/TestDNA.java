@@ -2,6 +2,7 @@ package test;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+import java.util.Map;
 
 import org.junit.Test;
 import dna.DNA;
@@ -50,4 +51,38 @@ public class TestDNA {
 		
 		assertEquals(expected, actual);		
 	}
+	
+	@Test
+	public void testBuildIndex() {
+		DNA test = new DNA("AGTCGTG");
+		DNA kmer = new DNA("GTG");
+		Map <Long, List<Integer>> result = test.buildIndex(kmer.getSize());
+		List<Integer> actual = test.findIndex(result, kmer);
+		List<Integer> expected = List.of(4);
+		
+		assertEquals(expected, actual);		
+	}
+	
+	@Test
+	public void testBuildIndex1() {
+		DNA test = new DNA("AGTCGTG");
+		DNA kmer = new DNA("GTAT");
+		Map <Long, List<Integer>> result = test.buildIndex(kmer.getSize());
+		List<Integer> actual = test.findIndex(result, kmer);
+		List<Integer> expected = List.of();
+		
+		assertEquals(expected, actual);		
+	}
+	
+	@Test
+	public void testBuildIndex2() {
+		DNA test = new DNA("AGCTGTGCT");
+		DNA kmer = new DNA("GCT");
+		Map <Long, List<Integer>> result = test.buildIndex(kmer.getSize());
+		List<Integer> actual = test.findIndex(result, kmer);
+		List<Integer> expected = List.of(1, 6);
+		
+		assertEquals(expected, actual);		
+	}
+	
 }
