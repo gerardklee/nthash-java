@@ -1,7 +1,9 @@
 package dna;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class DNA {
@@ -155,12 +157,12 @@ public class DNA {
 		List<Integer> result = new ArrayList<>();
 		int dnaSize = bases.size();
 		int k = kmer.bases.size();
-		int kmerHashVal = 0;
-		int dnaHashVal = 0;
+		long kmerHashVal = 0;
+		long dnaHashVal = 0;
 		
 		// get hash code of k-mer
 		for (int i = 0; i < k; i++) { 
-			kmerHashVal ^= kmer.bases.get(i).getValue() << k - i - 1;
+			kmerHashVal ^= Long.rotateLeft(kmer.bases.get(i).getValue(), k - i - 1);
 		}
 		
 		// compare each k-mer in the entire sequence to the target k-mer
@@ -169,19 +171,82 @@ public class DNA {
 			// initializing k-mer at dna[0]
 			if (i == 0) {
 				for (int j = 0; j < k; j++) {
-					dnaHashVal ^= bases.get(j).getValue() << k - j - 1;
+					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);
 				}
 			}
 			
 			// calculate k-mer at dna[i]
 			else {
-				dnaHashVal = (int) (dnaHashVal << 1 ^ bases.get(i - 1).getValue() << (k) ^ bases.get(i + k - 1).getValue());
+				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
 			}
 			
-			if (dnaHashVal == kmerHashVal) {
+			if (dnaHashVal == kmerHashVal && isSame(kmer, i)) {
 				result.add(i);
 			}
 		}		
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @param k k-mer length
+	 * @return
+	 */
+	public Map<Long, List<Integer>> buildIndex(int k) {
+		Map<Long, List<Integer>> result = new HashMap<>();
+		int dnaSize = bases.size();
+		long dnaHashVal = 0;
+		// compare each k-mer in the entire sequence to the target k-mer
+		for (int i = 0; i < dnaSize - k + 1; i++) {
+			
+			// initializing k-mer at dna[0]
+			if (i == 0) {
+				for (int j = 0; j < k; j++) {
+					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);
+					
+				}
+			}
+			
+			// calculate k-mer at dna[i]
+			else {
+				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
+			}
+			
+			if (result.containsKey(dnaHashVal)) {
+				result.get(dnaHashVal).add(i);				
+			} else {
+				List<Integer> indices = new ArrayList<>();
+				indices.add(i);
+				result.put(dnaHashVal, indices);
+			}
+		}
+		return result;
+	}
+	
+	public int getSize() {
+		return bases.size();
+	}
+	
+	public List<Integer> findIndex(Map<Long, List<Integer>> map, DNA kmer) {
+		int k = kmer.bases.size();
+		long kmerHashVal = 0;
+		
+		// get hashVal
+		for (int i = 0; i < k; i++) {
+			kmerHashVal ^= Long.rotateLeft(kmer.bases.get(i).getValue(), k - i - 1);
+		}
+		
+		if (!map.containsKey(kmerHashVal)) {
+			return List.of();
+		}
+		
+		List<Integer> result = new ArrayList<>();
+		for (int index : map.get(kmerHashVal)) {
+			if (isSame(kmer, index)) {
+				result.add(index);
+			}
+		}
+		
 		return result;
 	}
 	
