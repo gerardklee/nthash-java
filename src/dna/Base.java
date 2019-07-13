@@ -1,7 +1,7 @@
 package dna;
 
 public enum Base {
-	A(1), T(2), G(3), C(4);
+	A(0x3c8bfbb395c60474L), T(0x3193c18562a02b4cL), G(0x20323ed082572324L), C(0x295549f54be24456L);
 	
 	private final long value;
 	
