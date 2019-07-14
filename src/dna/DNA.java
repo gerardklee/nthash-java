@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class DNA {
 	private List<Base> bases;
@@ -221,6 +223,92 @@ public class DNA {
 			}
 		}
 		return result;
+	}
+	
+	/**
+	 * 
+	 * @param k k-mer length
+	 * @return
+	 */
+	public void buildIndex(int start, int end, int k, Map<Long, List<Integer>> map) {
+		long dnaHashVal = 0;
+		// compare each k-mer in the entire sequence to the target k-mer
+		for (int i = start; i < end; i++) {
+			
+			// initializing k-mer at dna[start]
+			if (i == start) {
+				for (int j = start; j < k + start; j++) {
+					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);
+					
+				}
+			}
+			
+			// calculate k-mer at dna[i]
+			else {
+				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
+			}
+			
+			List<Integer> value =  map.computeIfAbsent(dnaHashVal, key -> { return Collections.synchronizedList(new ArrayList<>()); });
+			value.add(i);
+		}
+	}
+	
+	/**
+	 * 
+	 * @param k
+	 * @return
+	 */
+	public Map<Long, List<Integer>> buildIndexFast(int k) {
+		Map<Long, List<Integer>> map = new ConcurrentHashMap<>();
+		int cores = Runtime.getRuntime().availableProcessors();
+		int totalSize = bases.size() - k + 1;
+		int divSize = totalSize / cores;
+		List<Thread> threads = new ArrayList<>();
+		for (int i = 0; i < cores; i++) { // 2
+			final int startingPoint = i * divSize;
+			final int endPoint = (i == cores - 1) ? totalSize : startingPoint + divSize;
+			System.out.println("start: " + startingPoint +" " + "endPoint: " + endPoint);
+
+			Thread thread = new Thread(() -> buildIndex(startingPoint, endPoint, k, map));
+			threads.add(thread);
+		}
+		
+		// start threads simultaneously
+		for (Thread thread : threads) {
+			thread.start();
+		}
+		
+		for (Thread thread : threads) {
+			try {
+				thread.join(); // one thread is waiting until another thread completes its execution
+			} catch (InterruptedException e) {
+				e.printStackTrace(); 
+			}
+		}
+		
+		return map;
+		
+	}
+	
+	public List<Integer> findIndexFast(Map<Long, List<Integer>> map, DNA kmer) {
+		int k = kmer.bases.size();
+		long kmerHashVal = 0;
+		
+		// get hashVal
+		for (int i = 0; i < k; i++) {
+			kmerHashVal ^= Long.rotateLeft(kmer.bases.get(i).getValue(), k - i - 1);
+		}
+		
+		if (!map.containsKey(kmerHashVal)) {
+			return List.of();
+		}
+		
+		return map.get(kmerHashVal)
+			      .parallelStream()
+			      .filter(index -> isSame(kmer, index))
+			      .collect(Collectors.toList());
+		
+		
 	}
 	
 	public int getSize() {
