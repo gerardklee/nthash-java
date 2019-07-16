@@ -246,7 +246,6 @@ public class DNA {
 			else {
 				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
 			}
-			System.out.println(i + ", " + dnaHashVal);
 			List<Integer> value =  map.computeIfAbsent(dnaHashVal, key -> { return Collections.synchronizedList(new ArrayList<>()); });
 			value.add(i);
 		}
@@ -266,7 +265,6 @@ public class DNA {
 		for (int i = 0; i < cores; i++) { // 2
 			final int startingPoint = i * divSize;
 			final int endPoint = (i == cores - 1) ? totalSize : startingPoint + divSize;
-			System.out.println("start: " + startingPoint +" " + "endPoint: " + endPoint);
 
 			Thread thread = new Thread(() -> buildIndex(startingPoint, endPoint, k, map));
 			threads.add(thread);
@@ -303,7 +301,7 @@ public class DNA {
 		}
 		
 		return map.get(kmerHashVal) // list of indices
-			      .parallelStream() // take that list automatically into multiple threads
+			      .parallelStream() // break the list into 4 (in my case) and take that list automatically into multiple threads
 			      .filter(index -> isSame(kmer, index))
 			      .collect(Collectors.toList());
 		
