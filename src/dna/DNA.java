@@ -238,8 +238,7 @@ public class DNA {
 			// initializing k-mer at dna[start]
 			if (i == start) {
 				for (int j = start; j < k + start; j++) {
-					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);
-					
+					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);					
 				}
 			}
 			
@@ -247,7 +246,7 @@ public class DNA {
 			else {
 				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
 			}
-			
+			System.out.println(i + ", " + dnaHashVal);
 			List<Integer> value =  map.computeIfAbsent(dnaHashVal, key -> { return Collections.synchronizedList(new ArrayList<>()); });
 			value.add(i);
 		}
@@ -303,11 +302,10 @@ public class DNA {
 			return List.of();
 		}
 		
-		return map.get(kmerHashVal)
-			      .parallelStream()
+		return map.get(kmerHashVal) // list of indices
+			      .parallelStream() // take that list automatically into multiple threads
 			      .filter(index -> isSame(kmer, index))
 			      .collect(Collectors.toList());
-		
 		
 	}
 	
