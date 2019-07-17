@@ -238,11 +238,11 @@ public class DNA {
 			// initializing k-mer at dna[start]
 			if (i == start) {
 				for (int j = start; j < k + start; j++) {
-					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k - j - 1);					
+					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k + start - j - 1);					
 				}
 			}
 			
-			// calculate k-mer at dna[i]
+			// calculate k-mer at DNA[i]
 			else {
 				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
 			}
