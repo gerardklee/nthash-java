@@ -108,6 +108,17 @@ public class TestDNA {
 	}
 	
 	@Test
+	public void testBuildIndex5() {
+		DNA test = new DNA("GCTAGCTGGG");
+		DNA kmer = new DNA("GCT");
+		Map <Long, List<Integer>> result = test.buildIndex(kmer.getSize());
+		List<Integer> actual = test.findIndex(result, kmer);
+		List<Integer> expected = List.of(0, 4);
+		
+		assertEquals(expected, actual);		
+	}
+	
+	@Test
 	public void testFindIndexFast1() {
 		DNA test = new DNA("AGCTGTGCTATGCT");
 		DNA kmer = new DNA("GCT");
@@ -122,9 +133,13 @@ public class TestDNA {
 	public void testFindIndexFast2() {
 		DNA test = new DNA("GCTAGCTGGG");
 		DNA kmer = new DNA("GCT");
-		Map <Long, List<Integer>> result = test.buildIndexFast(kmer.getSize());
-		List<Integer> actual = test.findIndex(result, kmer);
-		List<Integer> expected = List.of(0, 6);
+		System.out.println("kmerSize: " + kmer.getSize());
+		Map <Long, List<Integer>> result1 = test.buildIndex(kmer.getSize());
+		Map <Long, List<Integer>> result2 = test.buildIndexFast(kmer.getSize());
+		System.out.println("buildIndex: " + result1);
+		System.out.println("buildIndexFast: " + result2);
+		List<Integer> actual = test.findIndex(result2, kmer);
+		List<Integer> expected = List.of(0, 4);
 		
 		assertEquals(expected, actual);		
 	}
