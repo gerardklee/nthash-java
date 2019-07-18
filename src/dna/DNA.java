@@ -1,9 +1,12 @@
 package dna;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class DNA {
 	private List<Base> bases;
-	
+	private File file;
 	/**
 	 * Constructor for fasta file
 	 */
@@ -86,6 +89,14 @@ public class DNA {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param file
+	 */
+	public DNA(File file) {
+		this.file = file;
+	}
+	
 	@Override
 	public String toString() {
 		// convert base back into String
@@ -109,6 +120,47 @@ public class DNA {
 			}
 		}
 		return indices;
+	}
+	
+	/**
+	 * 
+	 */
+	public List<Long> getIndexFile(DNA kmer) {
+		List<Long> result = new ArrayList<>();
+		char[] dnaArray = new char[kmer.getSize()];
+		char[] kmerArray = kmer.toString().toCharArray();
+		int ptr = 0;
+		long chr = 0;
+
+		try {
+			InputStream stream = new FileInputStream(this.file);
+			BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
+			int character;
+			while ((character = buffer.read()) != -1) {
+				dnaArray[ptr] = (char) character;
+				ptr = (ptr + 1) % dnaArray.length;
+				chr++;
+				if (chr >= kmerArray.length) {
+					boolean match = true;
+					for (int i = 0; i < kmerArray.length; i++) {
+						if (dnaArray[(ptr + i) % dnaArray.length] != kmerArray[i]) {
+							match = false;
+							break;
+						}
+					}
+					if (match) {
+						result.add(chr - kmer.getSize());
+					}
+				}
+			}
+			buffer.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return result;
 	}
 	
 	/**
