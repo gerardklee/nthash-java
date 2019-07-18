@@ -1,4 +1,9 @@
 package dna;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -10,6 +15,39 @@ import java.util.stream.Collectors;
 
 public class DNA {
 	private List<Base> bases;
+	
+	/**
+	 * Constructor for fasta file
+	 */
+	//TODO: how does object prints out elements in bases without actually accessing it?
+	public DNA() {
+		try {
+			File file = new File("/Users/gerardlee/Desktop/file.txt");
+			BufferedReader br = new BufferedReader(new FileReader(file));
+			String line;
+			String dnaString = "";
+			boolean first = true;
+			while((line = br.readLine()) != null) {
+				if (line.startsWith(">")) {
+					if (first) { first = false; }
+				} else {
+					dnaString += line;
+				}		
+			}
+			bases = new ArrayList<>();
+			for (int i = 0; i < dnaString.length(); i++) {
+				char dnaCharacter = dnaString.charAt(i);
+				String dnaChartoString = String.valueOf(dnaCharacter);
+				Base base = Base.valueOf(dnaChartoString);
+				bases.add(base);
+			}
+			br.close();
+		}catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}catch (IOException ie) {
+			ie.printStackTrace();
+		}
+	}
 	
 	/**
 	 * Constructor that takes DNA string, convert them into DNA enum, and insert into list.
