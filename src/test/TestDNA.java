@@ -1,6 +1,7 @@
 package test;
 import static org.junit.Assert.assertEquals;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -143,4 +144,17 @@ public class TestDNA {
 		
 		assertEquals(expected, actual);		
 	}
+	
+	@Test
+	public void testgetIndexFile() {
+		File file = new File("/Users/gerardlee/Desktop/file.txt");
+		DNA test = new DNA(file);
+		DNA kmer = new DNA("ATGT");
+		List<Long> expected = List.of(0L);
+		List<Long> actual = test.getIndexFile(kmer);
+		
+		assertEquals(expected, actual);
+		
+	}
+	
 }
