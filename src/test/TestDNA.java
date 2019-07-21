@@ -157,4 +157,11 @@ public class TestDNA {
 		
 	}
 	
+	@Test
+	public void biuldIndexFile() throws Exception {
+		File file = new File("/Users/gerardlee/Desktop/file.txt");
+		DNA test = new DNA(file);
+		test.buildIndexFile(3);
+	}
+	
 }
