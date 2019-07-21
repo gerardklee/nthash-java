@@ -7,6 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -19,6 +23,11 @@ import java.util.stream.Collectors;
 public class DNA {
 	private List<Base> bases;
 	private File file;
+	Connection conn;
+	// JDBC driver name and database URL 
+	static final String JDBC_DRIVER = "org.h2.Driver";   
+	static final String DB_URL = "jdbc:h2:~/test";  
+	
 	/**
 	 * Constructor for fasta file
 	 */
@@ -94,7 +103,55 @@ public class DNA {
 	 * @param file
 	 */
 	public DNA(File file) {
-		this.file = file;
+		this.file = file; 		
+	}
+	
+	public void buildIndexFile(int k) throws Exception{
+		conn = DriverManager.getConnection("jdbc:h2:~/test");
+		// STEP 1: Register JDBC driver 
+        Class.forName(JDBC_DRIVER); 
+             
+        //STEP 2: Open a connection 
+        System.out.println("Connecting to database..."); 
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "CREATE TABLE IF NOT EXISTS kmer6(start INT NOT NULL, hash INT NOT NULL, PRIMARY KEY(start));"; 
+        stmt.executeUpdate(sql);
+        stmt.close();
+        Statement stmt1 = conn.createStatement();
+        String sql1 = "CREATE INDEX IF NOT EXISTS hash_index ON kmer6(hash);";
+        stmt1.executeUpdate(sql1);
+        stmt1.close();
+        
+        //STEP 3: Insersting data
+
+		InputStream stream = new FileInputStream(this.file);
+		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
+		int character;
+		List<Long> result = new ArrayList<>();
+		char[] dnaArray = new char[k];
+		int ptr = 0;
+		long chr = 0;
+		long dnaHashVal = 0;
+		// read some number of bytes
+		// if there is no data, return -1
+		while ((character = buffer.read()) != -1) { 
+			dnaArray[ptr] = (char) character;
+			ptr = (ptr + 1) % dnaArray.length;
+			if (chr >= k) {
+				Statement stmt2 = conn.createStatement();
+				String sql2 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
+				stmt2.executeUpdate(sql2);
+				stmt2.close();
+				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(dnaArray[(ptr - 1) % dnaArray.length] , k) ^ dnaArray[ptr];
+			} else {
+				// TODO: convert character to magic number
+				dnaHashVal ^= Long.rotateLeft(character, (int) (k - chr - 1));
+			}
+			chr++;
+		}
+		buffer.close();
+        conn.close();
 	}
 	
 	@Override
@@ -136,7 +193,10 @@ public class DNA {
 			InputStream stream = new FileInputStream(this.file);
 			BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 			int character;
-			while ((character = buffer.read()) != -1) {
+			
+			// read some number of bytes
+			// if there is no data, return -1
+			while ((character = buffer.read()) != -1) { 
 				dnaArray[ptr] = (char) character;
 				ptr = (ptr + 1) % dnaArray.length;
 				chr++;
@@ -390,9 +450,10 @@ public class DNA {
 			return List.of();
 		}
 		
+		// code below maximizes CPU usage to speed up the operation
 		return map.get(kmerHashVal) // list of indices
 			      .parallelStream() // break the list into 4 (in my case) and take that list automatically into multiple threads
-			      .filter(index -> isSame(kmer, index))
+			      .filter(index -> isSame(kmer, index)) // "filters" each item based on the condition
 			      .collect(Collectors.toList());
 		
 	}
