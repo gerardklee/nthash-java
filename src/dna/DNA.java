@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -106,11 +105,14 @@ public class DNA {
 		this.file = file; 		
 	}
 	
+	/**
+	 * 
+	 * @param k
+	 * @throws Exception
+	 */
 	public void buildIndexFile(int k) throws Exception{
-		conn = DriverManager.getConnection("jdbc:h2:~/test");
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
-             
         //STEP 2: Open a connection 
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
@@ -135,21 +137,21 @@ public class DNA {
 		long dnaHashVal = 0;
 		// read some number of bytes
 		// if there is no data, return -1
-		while ((character = buffer.read()) != -1) { 
-			dnaArray[ptr] = (char) character;
-			ptr = (ptr + 1) % dnaArray.length;
-			if (chr >= k) {
-				Statement stmt2 = conn.createStatement();
-				String sql2 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
-				stmt2.executeUpdate(sql2);
-				stmt2.close();
-				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(dnaArray[(ptr - 1) % dnaArray.length] , k) ^ dnaArray[ptr];
-			} else {
-				// TODO: convert character to magic number
-				dnaHashVal ^= Long.rotateLeft(character, (int) (k - chr - 1));
-			}
-			chr++;
-		}
+//		while ((character = buffer.read()) != -1) { 
+//			dnaArray[ptr] = (char) character;
+//			ptr = (ptr + 1) % dnaArray.length;
+//			if (chr >= k) {
+//				Statement stmt2 = conn.createStatement();
+//				String sql2 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
+//				stmt2.executeUpdate(sql2);
+//				stmt2.close();
+//				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(dnaArray[(ptr - 1) % dnaArray.length] , k) ^ dnaArray[ptr];
+//			} else {
+//				// TODO: convert character to magic number
+//				dnaHashVal ^= Long.rotateLeft(character, (int) (k - chr - 1));
+//			}
+//			chr++;
+//		}
 		buffer.close();
         conn.close();
 	}
