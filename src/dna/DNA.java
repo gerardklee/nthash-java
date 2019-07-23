@@ -7,10 +7,13 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -118,7 +121,7 @@ public class DNA {
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS kmer6(start INT NOT NULL, hash INT NOT NULL, PRIMARY KEY(start));"; 
+        String sql = "CREATE TABLE IF NOT EXISTS kmer6(start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(start));"; 
         stmt.executeUpdate(sql);
         stmt.close();
         Statement stmt1 = conn.createStatement();
@@ -164,17 +167,87 @@ public class DNA {
 		buffer.close();
 		conn.close();
 	}		
-
+	
+	public void clearDB() throws Exception {
+		// STEP 1: Register JDBC driver 
+        Class.forName(JDBC_DRIVER); 
+        
+        // STEP 2: Open a connection 
+        System.out.println("Connecting to database..."); 
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "DELETE FROM kmer6";
+        stmt.executeUpdate(sql);
+        stmt.close();
+        conn.close();
+	}
+	
+	public void viewDB() throws Exception {
+		// STEP 1: Register JDBC driver 
+        Class.forName(JDBC_DRIVER); 
+        
+        // STEP 2: Open a connection 
+        System.out.println("Connecting to database..."); 
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT * FROM kmer6";
+        ResultSet result = stmt.executeQuery(sql);
+        while (result.next()) {
+        	long start = result.getLong("start");
+        	long hash = result.getLong("hash");
+        	System.out.println("start: " + start + ", " + "hash: " + hash);
+        }
+        result.close();
+        stmt.close();
+        conn.close();
+	}
+	
+	public List<Long> getIndexDB(DNA kmer) throws Exception {
+		RandomAccessFile randomFile = new RandomAccessFile(file, "r");
+		List<Long> output = new ArrayList<>();
+		long kmerHashVal = 0;
+		for (int i = 0; i < kmer.getSize(); i++) { 
+			kmerHashVal ^= Long.rotateLeft(kmer.bases.get(i).getValue(), kmer.getSize() - i - 1);
+		}
+		char[] kmerArray = kmer.toString().toCharArray();
+		// STEP 1: Register JDBC driver 
+        Class.forName(JDBC_DRIVER); 
+        
+        // STEP 2: Open a connection 
+        System.out.println("Connecting to database..."); 
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "SELECT start FROM kmer6 WHERE hash = " + kmerHashVal + ";";
+        ResultSet result = stmt.executeQuery(sql);
+        while (result.next()) {
+        	char[] dnaArray = new char[kmer.getSize()];
+        	long start = result.getLong("start");
+        	System.out.println(start);
+        	randomFile.seek(start);
+        	for (int i = 0; i < kmer.getSize(); i++) {
+        		dnaArray[i] = (char) randomFile.read();
+        		System.out.println(dnaArray[i]);
+        	}
+        	if (Arrays.equals(kmerArray, dnaArray)) {
+        		output.add(start);
+        	}
+        }
+        result.close();
+        stmt.close();
+        conn.close();
+        randomFile.close();
+        return output;      
+	}
 	
 	private long getValue(char base) {
 		if (base == 'A') {
-			return 1L;
+			return 0x3c8bfbb395c60474L;
 		} else if (base == 'T') {
-			return 2L;
+			return 0x3193c18562a02b4cL;
 		} else if (base == 'G') {
-			return 4L;
+			return 0x20323ed082572324L;
 		} else { // base == 'C'
-			return 6L;
+			return 0x295549f54be24456L;
 		}
 	}
 	
