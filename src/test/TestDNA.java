@@ -161,7 +161,32 @@ public class TestDNA {
 	public void biuldIndexFile() throws Exception {
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
+		test.clearDB();
 		test.buildIndexFile(3);
 	}
 	
+	@Test
+	public void biuldIndexFile2() throws Exception {	
+		File file = new File("/Users/gerardlee/Desktop/file.txt");
+		DNA test = new DNA(file);
+		test.clearDB();
+		test.buildIndexFile(3);
+		test.viewDB();
+		DNA test2 = new DNA("ATGTCGATATAGCGCATGC");
+		System.out.println(test2.buildIndex(3));
+	}	
+	
+	@Test
+	public void biuldIndexFile3() throws Exception {	
+		File file = new File("/Users/gerardlee/Desktop/file.txt");
+		DNA test = new DNA(file);
+		test.clearDB();
+		test.buildIndexFile(3);
+		DNA kmer = new DNA("GTC");
+
+		List<Long> expected = List.of(2L);
+		List<Long> actual = test.getIndexDB(kmer);
+		
+		assertEquals(expected, actual);
+	}
 }
