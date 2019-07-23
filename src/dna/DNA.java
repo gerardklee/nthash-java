@@ -7,7 +7,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -131,56 +130,51 @@ public class DNA {
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		int character;
-		int character1;
 		List<Long> result = new ArrayList<>();
 		char[] dnaArray = new char[k];
-		int ptr = 0;
-		long chr = 0;
 		long dnaHashVal = 0;
-		long initVal = 0;
 		
-		// insert initial hash value into the database
+		// insert initial hash value into the database (need to clear the table in lujing's lesson)
 		for (int i = 0; i < k; i++) {
 			character = (char) buffer.read();
-			System.out.println("for loop" + (char) character);
+			System.out.println("in dnaArray: " + (char) character);
 			dnaArray[i] = (char) character;
-			initVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
+			dnaHashVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
 		}
-		System.out.println(initVal);
 		Statement stmt2 = conn.createStatement();
-		String sql2 = "INSERT INTO kmer6 VALUES("+ (0) + "," + initVal + ");";
+		String sql2 = "INSERT INTO kmer6 VALUES("+ 0 + "," + dnaHashVal + ");";
 		stmt2.executeUpdate(sql2);
 		stmt2.close();
-		
-		// now, calculate next corresponding hashval in dnaArray
-		while ((character = buffer.read()) != -1) {
-			System.out.println((char) character);	
+
+		// now, insert next corresponding hash values to the db starting from index 1
+		int ptr = 0;
+		long chr = 4; // set 4 because initial hashval is already in db at index 0
+		while((character = buffer.read()) != -1) {
+			System.out.println((char) character);
+			char temp = dnaArray[ptr];
 			dnaArray[ptr] = (char) character;
-			ptr = (ptr + 1) % k;
-			if (chr >= k) {
-				Statement stmt3 = conn.createStatement();
-				String sql3 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
-				stmt3.executeUpdate(sql3);
-				stmt3.close();
-				// dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
-				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue((char) dnaArray[(ptr - 1) % dnaArray.length]), k); 
-				
-			}
+			dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue(temp), k) ^ getValue(dnaArray[ptr]);
+			Statement stmt3 = conn.createStatement();
+			String sql3 = "INSERT INTO kmer6 VALUES(" + (chr - k) + "," + dnaHashVal + ");";
+			stmt3.executeUpdate(sql3);
+			stmt3.close();
 			chr++;
+			ptr = (ptr + 1) % dnaArray.length;
 		}
 		buffer.close();
-        conn.close();
-	}
+		conn.close();
+	}		
+
 	
 	private long getValue(char base) {
 		if (base == 'A') {
-			return 0x3c8bfbb395c60474L;
+			return 1L;
 		} else if (base == 'T') {
-			return 0x3193c18562a02b4cL;
+			return 2L;
 		} else if (base == 'G') {
-			return 0x20323ed082572324L;
+			return 4L;
 		} else { // base == 'C'
-			return 0x295549f54be24456L;
+			return 6L;
 		}
 	}
 	
