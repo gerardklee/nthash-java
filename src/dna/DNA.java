@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -130,28 +131,40 @@ public class DNA {
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		int character;
+		int character1;
 		List<Long> result = new ArrayList<>();
 		char[] dnaArray = new char[k];
 		int ptr = 0;
 		long chr = 0;
 		long dnaHashVal = 0;
+		long initVal = 0;
 		
-		// read some number of bytes
-		// if there is no data, return -1
+		// insert initial hash value into the database
+		for (int i = 0; i < k; i++) {
+			character = (char) buffer.read();
+			System.out.println("for loop" + (char) character);
+			dnaArray[i] = (char) character;
+			initVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
+		}
+		System.out.println(initVal);
+		Statement stmt2 = conn.createStatement();
+		String sql2 = "INSERT INTO kmer6 VALUES("+ (0) + "," + initVal + ");";
+		stmt2.executeUpdate(sql2);
+		stmt2.close();
+		
+		// now, calculate next corresponding hashval in dnaArray
 		while ((character = buffer.read()) != -1) {
-			System.out.println((char) character);
+			System.out.println((char) character);	
 			dnaArray[ptr] = (char) character;
 			ptr = (ptr + 1) % k;
 			if (chr >= k) {
-				Statement stmt2 = conn.createStatement();
-				String sql2 = "INSERT INTO kmer6" + "VALUES (chr - k), dnaHashVal)";
-				stmt2.executeUpdate(sql2);
-				stmt2.close();
+				Statement stmt3 = conn.createStatement();
+				String sql3 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
+				stmt3.executeUpdate(sql3);
+				stmt3.close();
 				// dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
-				dnaHashVal ^= Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft() ^ 
+				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue((char) dnaArray[(ptr - 1) % dnaArray.length]), k); 
 				
-			} else {
-				dnaHashVal ^= Long.rotateLeft(getValue((char) character), (int) (k - chr - 1));
 			}
 			chr++;
 		}
@@ -159,7 +172,7 @@ public class DNA {
         conn.close();
 	}
 	
-	public long getValue(char base) {
+	private long getValue(char base) {
 		if (base == 'A') {
 			return 0x3c8bfbb395c60474L;
 		} else if (base == 'T') {
