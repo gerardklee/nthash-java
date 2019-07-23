@@ -113,7 +113,8 @@ public class DNA {
 	public void buildIndexFile(int k) throws Exception{
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
-        //STEP 2: Open a connection 
+        
+        // STEP 2: Open a connection 
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
@@ -125,8 +126,7 @@ public class DNA {
         stmt1.executeUpdate(sql1);
         stmt1.close();
         
-        //STEP 3: Insersting data
-
+        // STEP 3: Inserting data     
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		int character;
@@ -135,25 +135,40 @@ public class DNA {
 		int ptr = 0;
 		long chr = 0;
 		long dnaHashVal = 0;
+		
 		// read some number of bytes
 		// if there is no data, return -1
-//		while ((character = buffer.read()) != -1) { 
-//			dnaArray[ptr] = (char) character;
-//			ptr = (ptr + 1) % dnaArray.length;
-//			if (chr >= k) {
-//				Statement stmt2 = conn.createStatement();
-//				String sql2 = "INSERT INTO kmer6 VALUES("+ (chr - k) + "," + dnaHashVal + ");";
-//				stmt2.executeUpdate(sql2);
-//				stmt2.close();
-//				dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(dnaArray[(ptr - 1) % dnaArray.length] , k) ^ dnaArray[ptr];
-//			} else {
-//				// TODO: convert character to magic number
-//				dnaHashVal ^= Long.rotateLeft(character, (int) (k - chr - 1));
-//			}
-//			chr++;
-//		}
+		while ((character = buffer.read()) != -1) {
+			System.out.println((char) character);
+			dnaArray[ptr] = (char) character;
+			ptr = (ptr + 1) % k;
+			if (chr >= k) {
+				Statement stmt2 = conn.createStatement();
+				String sql2 = "INSERT INTO kmer6" + "VALUES (chr - k), dnaHashVal)";
+				stmt2.executeUpdate(sql2);
+				stmt2.close();
+				// dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(bases.get(i - 1).getValue(), k) ^ bases.get(i + k - 1).getValue();
+				dnaHashVal ^= Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft() ^ 
+				
+			} else {
+				dnaHashVal ^= Long.rotateLeft(getValue((char) character), (int) (k - chr - 1));
+			}
+			chr++;
+		}
 		buffer.close();
         conn.close();
+	}
+	
+	public long getValue(char base) {
+		if (base == 'A') {
+			return 0x3c8bfbb395c60474L;
+		} else if (base == 'T') {
+			return 0x3193c18562a02b4cL;
+		} else if (base == 'G') {
+			return 0x20323ed082572324L;
+		} else { // base == 'C'
+			return 0x295549f54be24456L;
+		}
 	}
 	
 	@Override
