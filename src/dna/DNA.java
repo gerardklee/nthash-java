@@ -31,9 +31,8 @@ public class DNA {
 	static final String DB_URL = "jdbc:h2:~/test";  
 	
 	/**
-	 * Constructor for fasta file
+	 * Constructor for FASTA file process.
 	 */
-	//TODO: how does object prints out elements in bases without actually accessing it?
 	public DNA() {
 		try {
 			File file = new File("/Users/gerardlee/Desktop/file.txt");
@@ -64,8 +63,8 @@ public class DNA {
 	}
 	
 	/**
-	 * Constructor that takes DNA string, convert them into DNA enum, and insert into list.
-	 * @param dnaString
+	 * Constructor that takes DNA string, convert them into Base, and insert into list.
+	 * @param dnaString DNA sequence
 	 */
 	public DNA(String dnaString) {
 		bases = new ArrayList<>();
@@ -81,7 +80,7 @@ public class DNA {
 	
 	/**
 	 * Constructor for random generation of DNA sequence.
-	 * @param length of random sequence to be generated.
+	 * @param length of random sequence to be generated
 	 */
 	public DNA(int n) {
 		bases = new ArrayList<>();
@@ -101,16 +100,16 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param file
+	 * Constructor that takes file as an argument and saves it in class.
+	 * @param FASTA file
 	 */
 	public DNA(File file) {
 		this.file = file; 		
 	}
 	
 	/**
-	 * 
-	 * @param k
+	 * This method calculates k-mer at every index from a DNA sequence and insert them into database.
+	 * @param k length of the k-mer
 	 * @throws Exception
 	 */
 	public void buildIndexFile(int k) throws Exception{
@@ -133,7 +132,6 @@ public class DNA {
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		int character;
-		List<Long> result = new ArrayList<>();
 		char[] dnaArray = new char[k];
 		long dnaHashVal = 0;
 		
@@ -168,6 +166,10 @@ public class DNA {
 		conn.close();
 	}		
 	
+	/**
+	 * This method clears the database.
+	 * @throws Exception
+	 */
 	public void clearDB() throws Exception {
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
@@ -182,6 +184,10 @@ public class DNA {
         conn.close();
 	}
 	
+	/**
+	 * This method is to view the contents of the database.
+	 * @throws Exception
+	 */
 	public void viewDB() throws Exception {
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
@@ -202,6 +208,12 @@ public class DNA {
         conn.close();
 	}
 	
+	/**
+	 * This method finds the index of the DNA hash value that matches that of the k-mer.
+	 * @param kmer The sequence of the k-mer
+	 * @return the list with target indices
+	 * @throws Exception
+	 */
 	public List<Long> getIndexDB(DNA kmer) throws Exception {
 		RandomAccessFile randomFile = new RandomAccessFile(file, "r");
 		List<Long> output = new ArrayList<>();
@@ -239,6 +251,11 @@ public class DNA {
         return output;      
 	}
 	
+	/**
+	 * This method sets the magic value to each nucleotide.
+	 * @param base each nucleotide (A, G, T, C)
+	 * @return the magic value that corresponds to each nucleotide
+	 */
 	private long getValue(char base) {
 		if (base == 'A') {
 			return 0x3c8bfbb395c60474L;
@@ -263,8 +280,8 @@ public class DNA {
 	
 	/**
 	 * Brute force search.
-	 * @param kmer
-	 * @return list of first index of the sequence when the k-mer finds its match in the sequence.
+	 * @param kmer sequence of the k-mer
+	 * @return list of first index of the sequence when the k-mer finds its match in the sequence
 	 */
 	public List<Integer> getIndex(DNA kmer) {
 		List<Integer> indices = new ArrayList<>();
@@ -278,6 +295,8 @@ public class DNA {
 	
 	/**
 	 * 
+	 * @param kmer sequence of the k-mer
+	 * @return the list with indices of k-mer from the sequence that matches the actual k-mer
 	 */
 	public List<Long> getIndexFile(DNA kmer) {
 		List<Long> result = new ArrayList<>();
@@ -321,9 +340,11 @@ public class DNA {
 	}
 	
 	/**
-	 * Brute force search for each core of CPU.
-	 * @param kmer
-	 * @return
+	 * This method uses brute force to find indices of k-mer from the sequence that matches the actual k-mer.
+	 * @param kmer sequence of the k-mer
+	 * @param start start index of the sequence
+	 * @param end end index of the sequence
+	 * @return the list with target indices
 	 */
 	public List<Integer> getIndexRange(DNA kmer, int start, int end) {
 		List<Integer> indices = new ArrayList<>();
@@ -337,9 +358,9 @@ public class DNA {
 	
 	/**
 	 * Compare each character of k-mer to each character of the entire sequence.
-	 * @param kmer
-	 * @param index
-	 * @return true if the k-mer finds its match in the sequence. Otherwise, false.
+	 * @param kmer the sequence of the actual k-mer
+	 * @param index index from the DNA sequence
+	 * @return true if the k-mer finds its match in the sequence
 	 */
 	public boolean isSame(DNA kmer, int index) {
 		for (int i = 0; i < kmer.bases.size(); i++) {
@@ -351,9 +372,9 @@ public class DNA {
 	}
 	
 	/**
-	 * Hashing (Rabin-Karp) implemented search with non-bit operation
-	 * @param kmer
-	 * @return
+	 * This method calculates hash value of k-mer from the sequence using Rabin-Karp algorithm.
+	 * @param kmer sequence of the actual k-mer
+	 * @return list with indices of k-mer from the sequence that matches the hash value of the actual k-mer
 	 */
 	public List<Integer> getIndexHash(DNA kmer) {
 		List<Integer> result = new ArrayList<>();
@@ -398,8 +419,8 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param kmer pattern to be found.
+	 * This method uses Rabin-Karp algorithm and bit operation to calculate the hash value of k-mer from the entire sequence. 
+	 * @param kmer sequence of the actual k-mer
 	 * @return list of indices of matching sub k-mer from the DNA sequence.
 	 */
 	public List<Integer> getIndexBit(DNA kmer) {
@@ -437,9 +458,9 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param k k-mer length
-	 * @return
+	 * This method stores DNA hash values and its corresponding indices in hash table.
+	 * @param k length of the k-mer
+	 * @return hash table with DNA hash values and list of target indices
 	 */
 	public Map<Long, List<Integer>> buildIndex(int k) {
 		Map<Long, List<Integer>> result = new HashMap<>();
@@ -473,9 +494,11 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param k k-mer length
-	 * @return
+	 * This method builds hash table using DNA hash values and its indices. If there are duplicate DNA hash values in the map, this method simply adds the corresponding index to the existing list. Otherwise, it inserts the DNA hash value into the map and a new list with the current index.
+	 * @param start start index
+	 * @param end end index
+	 * @param k length of the k-mer
+	 * @param map hash table with DNA hash values and its corresponding indices
 	 */
 	public void buildIndex(int start, int end, int k, Map<Long, List<Integer>> map) {
 		long dnaHashVal = 0;
@@ -499,8 +522,8 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param k
+	 * This method uses multi-threading to build the hash table.
+	 * @param k length of the k-mer
 	 * @return
 	 */
 	public Map<Long, List<Integer>> buildIndexFast(int k) {
@@ -534,6 +557,12 @@ public class DNA {
 		
 	}
 	
+	/**
+	 * This method utilizes stream to compare k-mer from the DNA sequence and the actual k-mer and find the indices that matches.
+	 * @param map the hash table with DNA hash values and its corresponding list of indices
+	 * @param kmer the sequence of the actual k-mer
+	 * @return the list of indices that matches between k-mer from the DNA sequence and the actual k-mer 
+	 */
 	public List<Integer> findIndexFast(Map<Long, List<Integer>> map, DNA kmer) {
 		int k = kmer.bases.size();
 		long kmerHashVal = 0;
@@ -555,10 +584,20 @@ public class DNA {
 		
 	}
 	
+	/**
+	 * 
+	 * @return size of the base
+	 */
 	public int getSize() {
 		return bases.size();
 	}
 	
+	/**
+	 * 
+	 * @param map
+	 * @param kmer
+	 * @return
+	 */
 	public List<Integer> findIndex(Map<Long, List<Integer>> map, DNA kmer) {
 		int k = kmer.bases.size();
 		long kmerHashVal = 0;
@@ -582,6 +621,11 @@ public class DNA {
 		return result;
 	}
 	
+	/**
+	 * This class creates a thread that operates on sub-sequences of the DNA sequence.
+	 * @author gerardlee
+	 *
+	 */
 	private class GetIndex implements Runnable {
 		public volatile List<Integer> returnValue;
 		private DNA kmer;
@@ -602,9 +646,9 @@ public class DNA {
 	}
 	
 	/**
-	 * Obtain index faster using multiple threads.
-	 * @param kmer
-	 * @return
+	 * This method utilizes multi-threading to find the matching indices of the DNA sequence to that of the actual k-mer.
+	 * @param kmer the sequence of the k-mer
+	 * @return the list with matching indices
 	 */
 	public List<Integer> getIndexFast(DNA kmer) {
 		// how many cores you have
