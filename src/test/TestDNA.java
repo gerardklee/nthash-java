@@ -161,7 +161,7 @@ public class TestDNA {
 	public void biuldIndexFile() throws Exception {
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
-		test.clearDB();
+		test.clearTable(3);
 		test.buildIndexFile(3);
 	}
 	
@@ -169,9 +169,9 @@ public class TestDNA {
 	public void biuldIndexFile2() throws Exception {	
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
-		test.clearDB();
+		test.clearTable(3);
 		test.buildIndexFile(3);
-		test.viewDB();
+		test.viewDB(3);
 		DNA test2 = new DNA("ATGTCGATATAGCGCATGC");
 		System.out.println(test2.buildIndex(3));
 	}	
@@ -180,7 +180,7 @@ public class TestDNA {
 	public void biuldIndexFile3() throws Exception {	
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
-		test.clearDB();
+		test.clearTable(3);
 		test.buildIndexFile(3);
 		DNA kmer = new DNA("GTC");
 
