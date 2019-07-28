@@ -22,6 +22,8 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import sequence.Base;
+
 public class DNA {
 	private List<Base> bases;
 	private File file;
@@ -115,16 +117,17 @@ public class DNA {
 	public void buildIndexFile(int k) throws Exception{
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
-        
+        String tableName = tableName(k);
+ 
         // STEP 2: Open a connection 
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS kmer6(start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(start));"; 
+        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(start));"; 
         stmt.executeUpdate(sql);
         stmt.close();
         Statement stmt1 = conn.createStatement();
-        String sql1 = "CREATE INDEX IF NOT EXISTS hash_index ON kmer6(hash);";
+        String sql1 = "CREATE INDEX IF NOT EXISTS hash_index ON " + tableName + "(hash);";
         stmt1.executeUpdate(sql1);
         stmt1.close();
         
@@ -143,7 +146,7 @@ public class DNA {
 			dnaHashVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
 		}
 		Statement stmt2 = conn.createStatement();
-		String sql2 = "INSERT INTO kmer6 VALUES("+ 0 + "," + dnaHashVal + ");";
+		String sql2 = "INSERT INTO " + tableName + " VALUES("+ 0 + "," + dnaHashVal + ");";
 		stmt2.executeUpdate(sql2);
 		stmt2.close();
 
@@ -156,7 +159,7 @@ public class DNA {
 			dnaArray[ptr] = (char) character;
 			dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue(temp), k) ^ getValue(dnaArray[ptr]);
 			Statement stmt3 = conn.createStatement();
-			String sql3 = "INSERT INTO kmer6 VALUES(" + (chr - k) + "," + dnaHashVal + ");";
+			String sql3 = "INSERT INTO " + tableName + " VALUES(" + (chr - k) + "," + dnaHashVal + ");";
 			stmt3.executeUpdate(sql3);
 			stmt3.close();
 			chr++;
@@ -166,11 +169,15 @@ public class DNA {
 		conn.close();
 	}		
 	
+	private String tableName(int k) {
+		return "kmer" + k;
+	}
+	
 	/**
 	 * This method clears the database.
 	 * @throws Exception
 	 */
-	public void clearDB() throws Exception {
+	public void clearTable(int k) throws Exception {
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
         
@@ -178,17 +185,18 @@ public class DNA {
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "DELETE FROM kmer6";
+        String sql = "DROP TABLE IF EXISTS " + tableName(k);
         stmt.executeUpdate(sql);
         stmt.close();
         conn.close();
 	}
+
 	
 	/**
 	 * This method is to view the contents of the database.
 	 * @throws Exception
 	 */
-	public void viewDB() throws Exception {
+	public void viewDB(int k) throws Exception {
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
         
@@ -196,7 +204,7 @@ public class DNA {
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "SELECT * FROM kmer6";
+        String sql = "SELECT * FROM " + tableName(k) ;
         ResultSet result = stmt.executeQuery(sql);
         while (result.next()) {
         	long start = result.getLong("start");
@@ -229,7 +237,7 @@ public class DNA {
         System.out.println("Connecting to database..."); 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "SELECT start FROM kmer6 WHERE hash = " + kmerHashVal + ";";
+        String sql = "SELECT start FROM " + tableName(kmer.getSize()) + " WHERE hash = " + kmerHashVal + ";";
         ResultSet result = stmt.executeQuery(sql);
         while (result.next()) {
         	char[] dnaArray = new char[kmer.getSize()];
