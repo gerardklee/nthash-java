@@ -6,8 +6,9 @@ public interface Sequence {
 	/**
 	 * Builds the index based on the length of the k-mer.
 	 * @param k length of the k-mer
+	 * @throws Exception 
 	 */
-	public void buildIndex(long k);
+	public void buildIndex(long k) throws Exception;
 	
 	/**
 	 * Gets positions of the sequence that matches with k-mer. If an index has been built, then this method
