@@ -24,7 +24,7 @@ public class TestMemorySequence {
 	}
 	
 	@Test
-	public void testBuildIndex3() {
+	public void testBuildIndex3() throws Exception {
 		Sequence test = MemorySequence.fromString("AGCTGTGCTATAGAGATATATATAGGGCGCGATAGACA");
 		Sequence kmer = MemorySequence.fromString("GCT");
 		test.buildIndex(kmer.getSize());
