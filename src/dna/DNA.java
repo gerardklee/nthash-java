@@ -427,9 +427,9 @@ public class DNA {
 	}
 	
 	/**
-	 * This method uses Rabin-Karp algorithm and bit operation to calculate the hash value of k-mer from the entire sequence. 
+	 * Calculate hash values of sub-sequences using Rabin-Karp algorithm and bit operation. 
 	 * @param kmer sequence of the actual k-mer
-	 * @return list of indices of matching sub k-mer from the DNA sequence.
+	 * @return list of indices of matching sub k-mer from the DNA sequence
 	 */
 	public List<Integer> getIndexBit(DNA kmer) {
 		List<Integer> result = new ArrayList<>();
@@ -466,7 +466,7 @@ public class DNA {
 	}
 	
 	/**
-	 * This method stores DNA hash values and its corresponding indices in hash table.
+	 * Stores DNA hash values and its corresponding indices in hash table.
 	 * @param k length of the k-mer
 	 * @return hash table with DNA hash values and list of target indices
 	 */
@@ -559,8 +559,7 @@ public class DNA {
 			} catch (InterruptedException e) {
 				e.printStackTrace(); 
 			}
-		}
-		
+		}		
 		return map;
 		
 	}
