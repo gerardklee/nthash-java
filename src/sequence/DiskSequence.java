@@ -1,11 +1,13 @@
 package sequence;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
+import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -13,6 +15,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class DiskSequence implements Sequence {
 	private File file;
@@ -22,7 +25,7 @@ public class DiskSequence implements Sequence {
 	private List<Base> bases;
 	
 	public DiskSequence(File file) {
-		this.file = file; 		
+		this.file = file; 	
 	}
 	
 	private DiskSequence(List<Base> bases) {
@@ -73,13 +76,21 @@ public class DiskSequence implements Sequence {
         // STEP 3: Inserting data     
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
+		
+		// 
+		String s = buffer.lines().collect(Collectors.joining());
+	    s = s.replaceAll("\n", "");
+		InputStream a = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
+		BufferedReader buffered = new BufferedReader(new InputStreamReader(a));
+		//
+	
 		int character;
 		char[] dnaArray = new char[(int) k];
 		long dnaHashVal = 0;
 		
 		// insert initial hash value into the database
 		for (int i = 0; i < k; i++) {
-			character = (char) buffer.read();
+			character = (char) buffered.read();
 			dnaArray[i] = (char) character;
 			dnaHashVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
 		}
@@ -91,7 +102,7 @@ public class DiskSequence implements Sequence {
 		// now, insert next corresponding hash values to the db starting from index 1
 		int ptr = 0;
 		long chr = 4; // set 4 because initial hashval is already in db at index 0
-		while((character = buffer.read()) != -1) {
+		while((character = buffered.read()) != -1) {
 			char temp = dnaArray[ptr];
 			dnaArray[ptr] = (char) character;
 			dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue(temp), (int) k) ^ getValue(dnaArray[ptr]);
@@ -127,7 +138,7 @@ public class DiskSequence implements Sequence {
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
         String sql = "SELECT start FROM " + tableName(kmer.getSize()) + " WHERE hash = " + kmerHashVal + ";";
-        ResultSet result = stmt.executeQuery(sql);
+        ResultSet result = stmt.executeQuery(sql); // obtains the sub-table from the query above.
         while (result.next()) {
         	char[] dnaArray = new char[(int) kmer.getSize()];
         	long start = result.getLong("start");
@@ -144,24 +155,6 @@ public class DiskSequence implements Sequence {
         conn.close();
         randomFile.close();
         return output;      
-	}
-	
-	
-	/**
-	 * This method clears the database.
-	 * @throws Exception
-	 */
-	public void clearTable(int k) throws Exception {
-		// STEP 1: Register JDBC driver 
-        Class.forName(JDBC_DRIVER); 
-        
-        // STEP 2: Open a connection 
-        conn = DriverManager.getConnection(DB_URL);
-        Statement stmt = conn.createStatement();
-        String sql = "DROP TABLE IF EXISTS " + tableName(k);
-        stmt.executeUpdate(sql);
-        stmt.close();
-        conn.close();
 	}
 	
 	/**
@@ -190,6 +183,29 @@ public class DiskSequence implements Sequence {
 		}
 	}
 	
+	
+	/**
+	 * Clears the database.
+	 * @throws Exception
+	 */
+	public void clearTable(int k) throws Exception {
+		// STEP 1: Register JDBC driver 
+        Class.forName(JDBC_DRIVER); 
+        
+        // STEP 2: Open a connection 
+        conn = DriverManager.getConnection(DB_URL);
+        Statement stmt = conn.createStatement();
+        String sql = "DROP TABLE IF EXISTS " + tableName(k);
+        stmt.executeUpdate(sql);
+        stmt.close();
+        conn.close();
+	}
+	
+	/**
+	 * Views the database.
+	 * @param k length of the k-mer
+	 * @throws Exception
+	 */
 	public void viewDB(int k) throws Exception {
 		// STEP 1: Register JDBC driver 
         Class.forName(JDBC_DRIVER); 
