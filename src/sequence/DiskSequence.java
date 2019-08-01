@@ -1,9 +1,11 @@
 package sequence;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
@@ -77,13 +79,19 @@ public class DiskSequence implements Sequence {
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		
-		// 
+		// remove white spaces or new line
 		String s = buffer.lines().collect(Collectors.joining());
 	    s = s.replaceAll("\n", "");
 		InputStream a = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
 		BufferedReader buffered = new BufferedReader(new InputStreamReader(a));
-		//
-	
+		
+		// replace string inside of the file
+		try (FileWriter writer = new FileWriter(file);
+			 BufferedWriter bw = new BufferedWriter(writer)) {
+			
+			bw.write(s);
+		} 
+		
 		int character;
 		char[] dnaArray = new char[(int) k];
 		long dnaHashVal = 0;
