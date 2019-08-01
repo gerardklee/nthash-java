@@ -80,16 +80,16 @@ public class DiskSequence implements Sequence {
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
 		
 		// remove white spaces or new line
-		String s = buffer.lines().collect(Collectors.joining());
-	    s = s.replaceAll("\n", "");
-		InputStream a = new ByteArrayInputStream(s.getBytes(Charset.forName("UTF-8")));
-		BufferedReader buffered = new BufferedReader(new InputStreamReader(a));
+		String removeNewline = buffer.lines().collect(Collectors.joining());
+	    removeNewline = removeNewline.replaceAll("\n", "");
+		InputStream stream1 = new ByteArrayInputStream(removeNewline.getBytes(Charset.forName("UTF-8")));
+		BufferedReader buffered = new BufferedReader(new InputStreamReader(stream1));
 		
-		// replace string inside of the file
+		// replace contents inside of the file
 		try (FileWriter writer = new FileWriter(file);
 			 BufferedWriter bw = new BufferedWriter(writer)) {
 			
-			bw.write(s);
+			bw.write(removeNewline);
 		} 
 		
 		int character;
