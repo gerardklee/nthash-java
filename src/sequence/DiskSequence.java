@@ -67,7 +67,7 @@ public class DiskSequence implements Sequence {
         // STEP 2: Open a connection 
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(start));"; 
+        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(dna_start BIGINT NOT NULL, file_start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(dna_start));"; 
         stmt.executeUpdate(sql);
         stmt.close();
         Statement stmt1 = conn.createStatement();
@@ -78,51 +78,53 @@ public class DiskSequence implements Sequence {
         // STEP 3: Inserting data     
 		InputStream stream = new FileInputStream(this.file);
 		BufferedReader buffer = new BufferedReader(new InputStreamReader(stream));
-		
-		// remove white spaces or new line
-		String removeNewline = buffer.lines().collect(Collectors.joining());
-	    removeNewline = removeNewline.replaceAll("\n", "");
-		InputStream stream1 = new ByteArrayInputStream(removeNewline.getBytes(Charset.forName("UTF-8")));
-		BufferedReader buffered = new BufferedReader(new InputStreamReader(stream1));
-		
-		// replace contents inside of the file
-		try (FileWriter writer = new FileWriter(file);
-			 BufferedWriter bw = new BufferedWriter(writer)) {
 			
-			bw.write(removeNewline);
-		} 
-		
 		int character;
 		char[] dnaArray = new char[(int) k];
 		long dnaHashVal = 0;
 		
 		// insert initial hash value into the database
 		for (int i = 0; i < k; i++) {
-			character = (char) buffered.read();
+			character = (char) buffer.read();
 			dnaArray[i] = (char) character;
 			dnaHashVal ^= Long.rotateLeft(getValue((char) dnaArray[i]), (int) (k - i - 1));
 		}
 		Statement stmt2 = conn.createStatement();
-		String sql2 = "INSERT INTO " + tableName + " VALUES("+ 0 + "," + dnaHashVal + ");";
+		String sql2 = "INSERT INTO " + tableName + " VALUES("+ 0 + "," + 0 + "," + dnaHashVal + ");";
 		stmt2.executeUpdate(sql2);
 		stmt2.close();
 
 		// now, insert next corresponding hash values to the db starting from index 1
 		int ptr = 0;
-		long chr = 4; // set 4 because initial hashval is already in db at index 0
-		while((character = buffered.read()) != -1) {
+		long dnaStart = k + 1; // set 4 because initial hashval is already in db at index 0
+		long fileStart = k + 1;
+		long skip = 0;
+		while((character = buffer.read()) != -1) {
+			if (!isGood((char) character)) {
+				skip++;
+				continue;
+			}
 			char temp = dnaArray[ptr];
 			dnaArray[ptr] = (char) character;
 			dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue(temp), (int) k) ^ getValue(dnaArray[ptr]);
 			Statement stmt3 = conn.createStatement();
-			String sql3 = "INSERT INTO " + tableName + " VALUES(" + (chr - k) + "," + dnaHashVal + ");";
+			String sql3 = "INSERT INTO " + tableName + " VALUES(" + (dnaStart - k) + "," + (fileStart - k) + "," + dnaHashVal + ");";
+			System.out.println("sql3: " + sql3);
 			stmt3.executeUpdate(sql3);
 			stmt3.close();
-			chr++;
+			dnaStart++;
+			fileStart++;
 			ptr = (ptr + 1) % dnaArray.length;
 		}
 		buffer.close();
 		conn.close();
+	}
+	
+	private boolean isGood(char character) {
+		if (character != 'A' && character != 'T' && character != 'G' && character != 'C' ) {
+			return false;
+		}
+		return true;
 	}
 	
 	/**
@@ -145,17 +147,25 @@ public class DiskSequence implements Sequence {
         // STEP 2: Open a connection  
         conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
-        String sql = "SELECT start FROM " + tableName(kmer.getSize()) + " WHERE hash = " + kmerHashVal + ";";
+        String sql = "SELECT dna_start, file_start FROM " + tableName(kmer.getSize()) + " WHERE hash = " + kmerHashVal + ";";
         ResultSet result = stmt.executeQuery(sql); // obtains the sub-table from the query above.
         while (result.next()) {
         	char[] dnaArray = new char[(int) kmer.getSize()];
-        	long start = result.getLong("start");
-        	randomFile.seek(start);
-        	for (int i = 0; i < kmer.getSize(); i++) {
-        		dnaArray[i] = (char) randomFile.read();
+        	long dnaStart = result.getLong("dna_start");
+        	long fileStart = result.getLong("file_start");
+        	randomFile.seek(fileStart);
+        	int i = 0;
+        	while (i < kmer.getSize()) {
+        		char character = (char) randomFile.read();
+        		System.out.println("character: " + character);
+        		if (!isGood(character)) {
+        			continue;
+        		}
+        		dnaArray[i] = character;
+        		i++;
         	}
         	if (Arrays.equals(kmerArray, dnaArray)) {
-        		output.add(start);
+        		output.add(dnaStart);
         	}
         }
         result.close();
@@ -205,30 +215,6 @@ public class DiskSequence implements Sequence {
         Statement stmt = conn.createStatement();
         String sql = "DROP TABLE IF EXISTS " + tableName(k);
         stmt.executeUpdate(sql);
-        stmt.close();
-        conn.close();
-	}
-	
-	/**
-	 * Views the database.
-	 * @param k length of the k-mer
-	 * @throws Exception
-	 */
-	public void viewDB(int k) throws Exception {
-		// STEP 1: Register JDBC driver 
-        Class.forName(JDBC_DRIVER); 
-        
-        // STEP 2: Open a connection 
-        conn = DriverManager.getConnection(DB_URL);
-        Statement stmt = conn.createStatement();
-        String sql = "SELECT * FROM " + tableName(k) ;
-        ResultSet result = stmt.executeQuery(sql);
-        while (result.next()) {
-        	long start = result.getLong("start");
-        	long hash = result.getLong("hash");
-        	System.out.println("start: " + start + ", " + "hash: " + hash);
-        }
-        result.close();
         stmt.close();
         conn.close();
 	}
