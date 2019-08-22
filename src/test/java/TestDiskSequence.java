@@ -1,4 +1,4 @@
-package test;
+
 
 import static org.junit.Assert.assertEquals;
 import java.io.File;
@@ -17,7 +17,6 @@ public class TestDiskSequence {
 		Sequence kmer = DiskSequence.fromString("ATG");
 		List<Long> expected = List.of(0L, 16L);
 		List<Long> actual = test.getIndexDB(kmer);
-		test.viewDB(3);
 		assertEquals(expected, actual);
 	}
 }
