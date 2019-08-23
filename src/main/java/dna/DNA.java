@@ -82,7 +82,7 @@ public class DNA {
 	
 	/**
 	 * Constructor for random generation of DNA sequence.
-	 * @param length of random sequence to be generated
+	 * @param n of random sequence to be generated
 	 */
 	public DNA(int n) {
 		bases = new ArrayList<>();
@@ -103,7 +103,7 @@ public class DNA {
 	
 	/**
 	 * Constructor that takes file as an argument and saves it in class.
-	 * @param FASTA file
+	 * @param file FASTA file
 	 */
 	public DNA(File file) {
 		this.file = file; 		
@@ -174,8 +174,9 @@ public class DNA {
 	}
 	
 	/**
-	 * This method clears the database.
-	 * @throws Exception
+	 * Clears the table.
+	 * @param k length of the k-mer
+	 * @throws Exception if the table cannot be cleared
 	 */
 	public void clearTable(int k) throws Exception {
 		// STEP 1: Register JDBC driver 
@@ -193,8 +194,9 @@ public class DNA {
 
 	
 	/**
-	 * This method is to view the contents of the database.
-	 * @throws Exception
+	 * Views the database.
+	 * @param k length of the k-mer
+	 * @throws Exception when there is no database
 	 */
 	public void viewDB(int k) throws Exception {
 		// STEP 1: Register JDBC driver 
@@ -220,7 +222,7 @@ public class DNA {
 	 * This method finds the index of the DNA hash value that matches that of the k-mer.
 	 * @param kmer The sequence of the k-mer
 	 * @return the list with target indices
-	 * @throws Exception
+	 * @throws Exception when an error occurs during reading the input file or the database.
 	 */
 	public List<Long> getIndexDB(DNA kmer) throws Exception {
 		RandomAccessFile randomFile = new RandomAccessFile(file, "r");

@@ -5,7 +5,9 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
@@ -13,6 +15,7 @@ import java.nio.charset.Charset;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,51 +24,30 @@ import java.util.stream.Collectors;
 
 public class DiskSequence implements Sequence {
 	private File file;
+	private RandomAccessFile randomFile;
 	static final String JDBC_DRIVER = "org.h2.Driver";   
 	static final String DB_URL = "jdbc:h2:~/test";  
 	Connection conn;
-	private List<Base> bases;
 	
-	public DiskSequence(File file) {
+	public DiskSequence(File file) throws FileNotFoundException, SQLException, ClassNotFoundException {
+        Class.forName(JDBC_DRIVER); 
 		this.file = file; 	
-	}
-	
-	private DiskSequence(List<Base> bases) {
-		this.bases = bases;
-	}
-	
-	@Override
-	public String toString() {
-		// convert base back into String
-		StringBuilder builder = new StringBuilder();
-		for (Base base: bases) {
-			builder.append(base.toString());
-		}
-		return builder.toString();
-	}
-	
-	public static DiskSequence fromString(String sequence) {
-		List<Base> bases = new ArrayList<>();
-		for (int i = 0; i < sequence.length(); i++) {
-			// convert char character in string to base
-			// then insert base into bases (List<Base>)
-			char dnaCharacter = sequence.charAt(i);
-			String dnaChartoString = String.valueOf(dnaCharacter);
-			Base base = Base.valueOf(dnaChartoString);
-			bases.add(base);
-		}
-		return new DiskSequence(bases);
+		this.randomFile = new RandomAccessFile(this.file, "r");
+		this.conn = DriverManager.getConnection(DB_URL);
 	}
 
 	
 	@Override
+	public String toString() {
+		return "DiskSequence of " + this.file.getAbsolutePath();
+	}
+	
+	@Override
 	public void buildIndex(long k) throws Exception{
-		// STEP 1: Register JDBC driver 
-        Class.forName(JDBC_DRIVER); 
         String tableName = tableName(k);
  
         // STEP 2: Open a connection 
-        conn = DriverManager.getConnection(DB_URL);
+
         Statement stmt = conn.createStatement();
         String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(dna_start BIGINT NOT NULL, file_start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(dna_start));"; 
         stmt.executeUpdate(sql);
@@ -98,10 +80,8 @@ public class DiskSequence implements Sequence {
 		int ptr = 0;
 		long dnaStart = k + 1; // set 4 because initial hashval is already in db at index 0
 		long fileStart = k + 1;
-		long skip = 0;
 		while((character = buffer.read()) != -1) {
 			if (!isGood((char) character)) {
-				skip++;
 				continue;
 			}
 			char temp = dnaArray[ptr];
@@ -109,7 +89,6 @@ public class DiskSequence implements Sequence {
 			dnaHashVal = Long.rotateLeft(dnaHashVal, 1) ^ Long.rotateLeft(getValue(temp), (int) k) ^ getValue(dnaArray[ptr]);
 			Statement stmt3 = conn.createStatement();
 			String sql3 = "INSERT INTO " + tableName + " VALUES(" + (dnaStart - k) + "," + (fileStart - k) + "," + dnaHashVal + ");";
-			System.out.println("sql3: " + sql3);
 			stmt3.executeUpdate(sql3);
 			stmt3.close();
 			dnaStart++;
@@ -117,7 +96,6 @@ public class DiskSequence implements Sequence {
 			ptr = (ptr + 1) % dnaArray.length;
 		}
 		buffer.close();
-		conn.close();
 	}
 	
 	private boolean isGood(char character) {
@@ -133,19 +111,18 @@ public class DiskSequence implements Sequence {
 	 * @return the list with matching positions
 	 * @throws Exception
 	 */
-	public List<Long> getIndexDB(Sequence kmer) throws Exception {
-		RandomAccessFile randomFile = new RandomAccessFile(file, "r");
+	private List<Long> getIndexDB(Sequence kmer) throws Exception {
 		List<Long> output = new ArrayList<>();
 		long kmerHashVal = 0;
 		for (int i = 0; i < kmer.getSize(); i++) { 
 			kmerHashVal ^= Long.rotateLeft(kmer.getBase(i).getValue(), (int) (kmer.getSize() - i - 1));
 		}
-		char[] kmerArray = kmer.toString().toCharArray();
-		// STEP 1: Register JDBC driver 
-        Class.forName(JDBC_DRIVER); 
+		char[] kmerArray = new char[(int) kmer.getSize()];
+		for (int i = 0; i < kmer.getSize(); i++) {
+			kmerArray[i] = kmer.getBase(i).toString().charAt(0);
+		}
         
         // STEP 2: Open a connection  
-        conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
         String sql = "SELECT dna_start, file_start FROM " + tableName(kmer.getSize()) + " WHERE hash = " + kmerHashVal + ";";
         ResultSet result = stmt.executeQuery(sql); // obtains the sub-table from the query above.
@@ -157,28 +134,42 @@ public class DiskSequence implements Sequence {
         	int i = 0;
         	while (i < kmer.getSize()) {
         		char character = (char) randomFile.read();
-        		System.out.println("character: " + character);
         		if (!isGood(character)) {
         			continue;
         		}
         		dnaArray[i] = character;
         		i++;
-        	}
+        	}       	
         	if (Arrays.equals(kmerArray, dnaArray)) {
         		output.add(dnaStart);
         	}
         }
         result.close();
         stmt.close();
-        conn.close();
-        randomFile.close();
         return output;      
+	}
+	
+	private boolean canTakeFastPath(long k) throws SQLException {
+		String tableName = tableName(k);
+        Statement stmt = conn.createStatement();
+        String sql = "CREATE TABLE IF NOT EXISTS " + tableName + "(dna_start BIGINT NOT NULL, file_start BIGINT NOT NULL, hash BIGINT NOT NULL, PRIMARY KEY(dna_start));"; 
+        stmt.executeUpdate(sql);
+        stmt.close();
+        
+        Statement stmt1 = conn.createStatement();
+        String sql1 = "SELECT COUNT(*) FROM " + tableName; 
+            
+        ResultSet result = stmt1.executeQuery(sql1);
+        result.next();
+        long a = result.getLong(1);
+        stmt1.close();
+        return a != 0;
 	}
 	
 	/**
 	 * Generates a table name that represents the length of the k-mer.
 	 * @param l length of the sequence
-	 * @return
+	 * @return table name
 	 */
 	private String tableName(long l) {
 		return "kmer" + l;
@@ -203,36 +194,71 @@ public class DiskSequence implements Sequence {
 	
 	
 	/**
-	 * Clears the database.
-	 * @throws Exception
+	 * Clears table corresponding to the length of the k-mer.
+	 * @param k length of the k-mer
+	 * @throws Exception when there is no such table exists
 	 */
 	public void clearTable(int k) throws Exception {
-		// STEP 1: Register JDBC driver 
-        Class.forName(JDBC_DRIVER); 
-        
+      
         // STEP 2: Open a connection 
-        conn = DriverManager.getConnection(DB_URL);
         Statement stmt = conn.createStatement();
         String sql = "DROP TABLE IF EXISTS " + tableName(k);
         stmt.executeUpdate(sql);
         stmt.close();
-        conn.close();
 	}
 	
 	@Override
 	public long getSize() {
-		return bases.size();
+		return file.length();
+	}
+	
+	public void close() throws Exception {
+		this.randomFile.close();
+		this.conn.close();
 	}
 	
 	@Override
-	public Base getBase(long position) {		
-		return bases.get((int) position) ;
+	public Base getBase(long position) {	
+		try {
+			randomFile.seek(position);
+			char c = (char)randomFile.read();
+			String s = String.valueOf(c);
+			Base b = Base.valueOf(s);
+			return b;
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			throw new RuntimeException();
+		}
 	}
 
 	@Override
-	public List<Long> getMatchingPositions(Sequence kmer) {
+	public List<Long> getMatchingPositions(Sequence kmer) throws Exception{
 		// TODO Auto-generated method stub
-		return null;
+		if (canTakeFastPath(kmer.getSize())) {
+			return getIndexDB(kmer);
+		} else {
+			return findPositionSlow(kmer);
+		}
+	}
+	
+	private List<Long> findPositionSlow(Sequence kmer) {
+		List<Long> indices = new ArrayList<>();
+		for (long i = 0; i < this.getSize() - kmer.getSize() + 1; i++) {
+			if (isSame(kmer, i)) {
+				indices.add(i);
+			}
+		}
+		return indices;
+	}
+	
+	private boolean isSame(Sequence kmer, long index) {
+		for (long i = 0; i < kmer.getSize(); i++) {
+			if (kmer.getBase(i) != this.getBase(index + i)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 }

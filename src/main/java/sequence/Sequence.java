@@ -16,7 +16,7 @@ public interface Sequence {
 	 * @param kmer sub-sequence to search for
 	 * @return list of matching starting positions in this sequence
 	 */
-	public List<Long> getMatchingPositions(Sequence kmer);
+	public List<Long> getMatchingPositions(Sequence kmer) throws Exception;
 	
 	/**
 	 * @return size of the sequence

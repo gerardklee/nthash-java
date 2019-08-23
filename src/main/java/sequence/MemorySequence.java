@@ -8,6 +8,10 @@ import java.util.Random;
 
 import dna.DNA;
 
+/**
+ * An immutable sequence that is stored completely in memory.
+ * @author gerardlee
+ */
 public class MemorySequence implements Sequence {
 	private List<Base> bases;
 	
@@ -57,9 +61,13 @@ public class MemorySequence implements Sequence {
 		return new MemorySequence(bases);
 	}
 	
+	/**
+	 * Creates a new memory sequence from a list of bases.
+	 * @param bases list of bases
+	 */
 	private MemorySequence(List<Base> bases) {
 		this.indices = new HashMap<>();
-		this.bases = bases;
+		this.bases = new ArrayList<>(bases);
 	}
 	
 	@Override
@@ -95,7 +103,7 @@ public class MemorySequence implements Sequence {
 	}
 
 	@Override
-	public List<Long> getMatchingPositions(Sequence kmer) {
+	public List<Long> getMatchingPositions(Sequence kmer) throws Exception{
 		if (indices.containsKey(kmer.getSize())) {
 			return findPositionFast(indices.get(kmer.getSize()), kmer);
 		}
