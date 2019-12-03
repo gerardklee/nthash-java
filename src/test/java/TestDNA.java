@@ -145,7 +145,7 @@ public class TestDNA {
 		assertEquals(expected, actual);		
 	}
 	
-	@Test
+	//@Test
 	public void testgetIndexFile() {
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
@@ -157,7 +157,7 @@ public class TestDNA {
 		
 	}
 	
-	@Test
+	//@Test
 	public void biuldIndexFile() throws Exception {
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
@@ -165,7 +165,7 @@ public class TestDNA {
 		test.buildIndexFile(3);
 	}
 	
-	@Test
+	//@Test
 	public void biuldIndexFile2() throws Exception {	
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
@@ -176,7 +176,7 @@ public class TestDNA {
 		System.out.println(test2.buildIndex(3));
 	}	
 	
-	@Test
+	//@Test
 	public void biuldIndexFile3() throws Exception {	
 		File file = new File("/Users/gerardlee/Desktop/file.txt");
 		DNA test = new DNA(file);
