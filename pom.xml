@@ -40,7 +40,6 @@
       		<pushChanges>false</pushChanges>
       		<mavenExecutorId>forked-path</mavenExecutorId>   		
       	</configuration>
-      	<version>2.5.3</version>
       	<dependencies>
       		<dependency>
       			<groupId>org.apache.maven.shared</groupId>
