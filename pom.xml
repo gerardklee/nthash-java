@@ -12,7 +12,6 @@
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>2.5.1</version>
         <configuration>
           <release>11</release>
         </configuration>
@@ -34,7 +33,6 @@
       <plugin>
       	<groupId>org.apache.maven.plugins</groupId>
       	<artifactId>maven-release-plugin</artifactId>
-      	<version>2.5.1</version>
       	<configuration>
       		<localCheckout>true</localCheckout>
       		<pushChanges>false</pushChanges>
@@ -45,7 +43,6 @@
       <plugin>
      	<groupId>org.apache.maven.plugins</groupId>
      	<artifactId>maven-resources-plugin</artifactId>
-     	<version>2.5.1</version>
      	<dependencies>
         	<dependency>
             	<groupId>org.apache.maven.shared</groupId>
@@ -58,7 +55,6 @@
       <plugin>
      	<groupId>org.apache.maven.plugins</groupId>
      	<artifactId>maven-source-plugin</artifactId>
-     	<version>2.5.1</version>
 		<executions>
 			<execution>
 				<id>attach-sources</id>
