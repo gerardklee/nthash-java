@@ -632,7 +632,7 @@ public class DNA {
 	
 	/**
 	 * This class creates a thread that operates on sub-sequences of the DNA sequence.
-	 * @author gerardlee
+	 * 
 	 *
 	 */
 	private class GetIndex implements Runnable {
