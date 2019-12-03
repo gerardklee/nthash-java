@@ -3,6 +3,9 @@
   <groupId>nthash-java</groupId>
   <artifactId>nthash-java</artifactId>
   <version>0.0.2-SNAPSHOT</version>
+  <properties>
+  	<java.version>1.8</java.version>
+  </properties>
   
   <build>
     <sourceDirectory>src</sourceDirectory>
