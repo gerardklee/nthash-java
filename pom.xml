@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>nthash-java</groupId>
   <artifactId>nthash-java</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.0.1</version>
   
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -37,7 +37,7 @@
       		<localCheckout>true</localCheckout>
       		<pushChanges>false</pushChanges>
       		<mavenExecutorId>forked-path</mavenExecutorId>
-      		<arguments>-Dgpg.passphrase=${gpg.passphrase}</arguments>     		
+      		
       	</configuration>
       </plugin>
       
@@ -117,7 +117,7 @@
   	<connection>scm:git:git://github.com/gerardklee/nthash-java.git</connection>
   	<developerConnection>scm:git:git@github.com:gerardklee/gerardklee.git</developerConnection>
   	<url>https://github.com/gerardklee/nthash-java</url>
-  	<tag>HEAD</tag>
+  	<tag>nthash-java-0.0.1</tag>
   </scm>
   
 </project>
