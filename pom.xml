@@ -112,12 +112,7 @@
   	</repository>
   </distributionManagement>
   
-  <scm>
-  	<connection>scm:git:git://github.com/gerardklee/nthash-java.git</connection>
-  	<developerConnection>scm:git:git@github.com:gerardklee/gerardklee.git</developerConnection>
-  	<url>https://github.com/gerardklee/nthash-java</url>
-  	<tag>HEAD</tag>
-  </scm>  
+ 
 </project>
 
 
