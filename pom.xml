@@ -39,6 +39,8 @@
       	<configuration>
       		<localCheckout>true</localCheckout>
       		<pushChanges>false</pushChanges>
+      		<fork>false</fork>
+      		<mavenExecutorId>forked-path</mavenExecutorId>
       		
       	</configuration>
       </plugin>
@@ -103,8 +105,7 @@
   	<developerConnection>scm:git:git@github.com:gerardklee/gerardklee.git</developerConnection>
   	<url>https://github.com/gerardklee/nthash-java</url>
   	<tag>HEAD</tag>
-  </scm>
-  
+  </scm>  
 </project>
 
 
