@@ -2,6 +2,7 @@
 import static org.junit.Assert.assertEquals;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -125,6 +126,7 @@ public class TestDNA {
 		DNA kmer = new DNA("GCT");
 		Map <Long, List<Integer>> result = test.buildIndexFast(kmer.getSize());
 		List<Integer> actual = test.findIndex(result, kmer);
+		Collections.sort(actual);
 		List<Integer> expected = List.of(1, 6, 11);
 		
 		assertEquals(expected, actual);		
@@ -140,6 +142,7 @@ public class TestDNA {
 		System.out.println("buildIndex: " + result1);
 		System.out.println("buildIndexFast: " + result2);
 		List<Integer> actual = test.findIndex(result2, kmer);
+		Collections.sort(actual);
 		List<Integer> expected = List.of(0, 4);
 		
 		assertEquals(expected, actual);		
