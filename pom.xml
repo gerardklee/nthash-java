@@ -15,6 +15,7 @@
         <configuration>
           <release>11</release>
           <source>6</source>
+          <target>6</target>
         </configuration>
       </plugin>
       
