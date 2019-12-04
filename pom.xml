@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.gerardklee</groupId>
   <artifactId>nthash-java</artifactId>
-  <version>0.0.3-SNAPSHOT</version>
+  <version>0.0.3</version>
   <properties>
   	<java.version>1.8</java.version>
   </properties>
@@ -123,7 +123,7 @@
   	<connection>scm:git:git://github.com/gerardklee/nthash-java.git</connection>
   	<developerConnection>scm:git:git@github.com:gerardklee/gerardklee.git</developerConnection>
   	<url>https://github.com/gerardklee/nthash-java</url>
-  	<tag>HEAD</tag>
+  	<tag>nthash-java-0.0.3</tag>
   </scm>  
 </project>
 
