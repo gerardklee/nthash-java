@@ -14,6 +14,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
           <release>11</release>
+          <source>6</source>
         </configuration>
       </plugin>
       
