@@ -112,7 +112,7 @@ public class DNA {
 	/**
 	 * This method calculates k-mer at every index from a DNA sequence and insert them into database.
 	 * @param k length of the k-mer
-	 * @throws Exception
+	 * @throws Exception if errors occur on database end, throws exception
 	 */
 	public void buildIndexFile(int k) throws Exception{
 		// STEP 1: Register JDBC driver 
@@ -512,10 +512,11 @@ public class DNA {
 	 */
 	public void buildIndex(int start, int end, int k, Map<Long, List<Integer>> map) {
 		long dnaHashVal = 0;
+		
 		// compare each k-mer in the entire sequence to the target k-mer
 		for (int i = start; i < end; i++) {
 			
-			// initializing k-mer at dna[start]
+			// initializing k-mer at DNA[start]
 			if (i == start) {
 				for (int j = start; j < k + start; j++) {
 					dnaHashVal ^= Long.rotateLeft(bases.get(j).getValue(), k + start - j - 1);					
@@ -534,7 +535,7 @@ public class DNA {
 	/**
 	 * This method uses multi-threading to build the hash table.
 	 * @param k length of the k-mer
-	 * @return
+	 * @return map with specific hash value with corresponding index in a list
 	 */
 	public Map<Long, List<Integer>> buildIndexFast(int k) {
 		Map<Long, List<Integer>> map = new ConcurrentHashMap<>();
@@ -602,10 +603,10 @@ public class DNA {
 	}
 	
 	/**
-	 * 
-	 * @param map
-	 * @param kmer
-	 * @return
+	 * This method searches for start indices that contains the k-mer.
+	 * @param map map with hash value with corresponding indices in a list
+	 * @param kmer target k-mer
+	 * @return list of indices
 	 */
 	public List<Integer> findIndex(Map<Long, List<Integer>> map, DNA kmer) {
 		int k = kmer.bases.size();

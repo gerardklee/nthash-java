@@ -9,7 +9,7 @@
   	nthash-java searches for k-mer substring in a really long DNA sequence
   	using multi-threading and Rabin-Karp algorithm.
   </description>
-  <url>https://github.com/gerardklee/nthash-java</url>
+  <url>/com/github/gerardklee/nthash-java/0.0.4</url>
   
   <licenses>
   	<license>
@@ -22,7 +22,7 @@
   <developers>
   	<developer>
   		<id>gerardklee</id>
-  		<name>gerard Lee</name>
+  		<name>Gerard Lee</name>
   		<email>gerardklee@hotmail.com</email>
   		<roles>
   			<role>developer</role>
@@ -109,7 +109,7 @@
 	  	<artifactId>maven-gpg-plugin</artifactId>
 	  	<version>1.5</version>
 	  	<configuration>
-	  		<skip>false</skip>
+	  		<useAgent>true</useAgent>
 	  	</configuration>
 	  	<executions>
 	  		<execution>
@@ -125,6 +125,10 @@
 	  <plugin>
 	  	<groupId>org.apache.maven.plugins</groupId>
 	  	<artifactId>maven-javadoc-plugin</artifactId>
+	  	<configuration>
+	  		<source>8</source>
+	  	</configuration>
+	  	<version>3.1.0</version>
 	  	<executions>
 	  		<execution>
 	  			<id>attach-javadocs</id>
