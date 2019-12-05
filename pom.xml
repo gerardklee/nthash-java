@@ -3,25 +3,13 @@
   <groupId>com.github.gerardklee</groupId>
   <artifactId>nthash-java</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4</version>
   <name>nthash-java</name>
   <description>
   	nthash-java searches for k-mer substring in a really long DNA sequence
   	using multi-threading and Rabin-Karp algorithm.
   </description>
   <url>https://github.com/gerardklee/nthash-java</url>
-  
-  <profiles>
-  	<profile>
-  		<id>doclint-java8-diable</id>
-  		<activation>
-  			<jdk>[1.8,)</jdk>
-  		</activation>
-  		<properties>
-  			<javadoc.opts>-Xdoclint:none</javadoc.opts>
-  		</properties>
-  	</profile>
-  </profiles>
   
   <licenses>
   	<license>
@@ -47,7 +35,7 @@
   </properties>
   
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
@@ -114,21 +102,7 @@
 			</execution>
 		</executions>
 	  </plugin>
-	  
-	  <plugin>
-	  	<groupId>org.apache.maven.plugins</groupId>
-	  	<artifactId>maven-javadoc-plugin</artifactId>
-	  	<version>2.10.2</version>
-	  	<executions>
-	  		<execution>
-	  			<id>attach-javadocs</id>
-	  			<configuration>
-	  				<additionalparam>${javadoc.opts}</additionalparam>
-	  				<doclint>none</doclint>
-	  			</configuration>
-	  		</execution>
-	  	</executions>
-	  </plugin>
+
 	  
 	  <plugin>
 	  	<groupId>org.apache.maven.plugins</groupId>
@@ -143,6 +117,19 @@
 	  			<phase>verify</phase>
 	  			<goals>
 	  				<goal>sign</goal>
+	  			</goals>
+	  		</execution>
+	  	</executions>
+	  </plugin>
+	  
+	  <plugin>
+	  	<groupId>org.apache.maven.plugins</groupId>
+	  	<artifactId>maven-javadoc-plugin</artifactId>
+	  	<executions>
+	  		<execution>
+	  			<id>attach-javadocs</id>
+	  			<goals>
+	  				<goal>jar</goal>
 	  			</goals>
 	  		</execution>
 	  	</executions>
