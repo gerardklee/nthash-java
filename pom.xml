@@ -3,7 +3,7 @@
   <groupId>com.github.gerardklee</groupId>
   <artifactId>nthash-java</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.4-SNAPSHOT</version>
+  <version>0.0.4</version>
   <name>nthash-java</name>
   <description>
   	nthash-java searches for k-mer substring in a really long DNA sequence
@@ -147,7 +147,7 @@
   	<connection>scm:git:git://github.com/gerardklee/nthash-java.git</connection>
   	<developerConnection>scm:git:git@github.com:gerardklee/gerardklee.git</developerConnection>
   	<url>https://github.com/gerardklee/nthash-java</url>
-  	<tag>HEAD</tag>
+  	<tag>nthash-java-0.0.4</tag>
   </scm>  
 </project>
 
