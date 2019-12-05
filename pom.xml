@@ -108,6 +108,19 @@
 	  </dependency>
   </dependencies>
   
+    <developers>
+        <developer>
+            <id>gerardklee</id>
+            <name>Gerard Lee</name>
+            <email>gerardklee@hotmail.com</email>
+            <organization>SDSU</organization>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>+3</timezone>
+        </developer>
+    </developers>
+  
   <distributionManagement>
   	<snapshotRepository>
   		<id>ossrh</id>
