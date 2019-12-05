@@ -3,7 +3,7 @@
   <groupId>com.github.gerardklee</groupId>
   <artifactId>nthash-java</artifactId>
   <packaging>jar</packaging>
-  <version>0.0.5-SNAPSHOT</version>
+  <version>0.0.4-SNAPSHOT</version>
   <name>nthash-java</name>
   <description>
   	nthash-java searches for k-mer substring in a really long DNA sequence
@@ -12,7 +12,9 @@
   
   <licenses>
   	<license>
-  		<name>The MIT License</name>
+  		<name></name>
+  		<url></url>
+  		<distribution></distribution>
   	</license>
   </licenses>
   
@@ -98,6 +100,24 @@
 				</goals>
 			</execution>
 		</executions>
+	  </plugin>
+	  
+	  <plugin>
+	  	<groupId>org.apache.maven.plugins</groupId>
+	  	<artifactId>maven-gpg-plugin</artifactId>
+	  	<version></version>
+	  	<configuration>
+	  		<skip>false</skip>
+	  	</configuration>
+	  	<executions>
+	  		<execution>
+	  			<id>sign-artifacts</id>
+	  			<phase>verify</phase>
+	  			<goals>
+	  				<goal>sign</goal>
+	  			</goals>
+	  		</execution>
+	  	</executions>
 	  </plugin>
       
       <plugin>
