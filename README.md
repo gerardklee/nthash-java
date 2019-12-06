@@ -10,4 +10,11 @@ Genomic information is important for analyses of species and diseases. If there 
 3. Once downloaded, one can configure the buildpath and add this JAR file on JAVA IDE such as Eclipse.
 
 ## Build with
-[Maven: Dependency Management](https://maven.apache.org/)
+[Maven](https://maven.apache.org/) - Dependency Management
+[H2](https://www.h2database.com/html/main.html) - Database Engine
+[JUnit](https://junit.org/junit5/) - Testing Framework
+[Sonatype](https://www.sonatype.com/) - Build and Manage Artifacts
+
+## References
+[ntHash: recursive nucleotide hashing](https://academic.oup.com/bioinformatics/article/32/22/3492/2525588) - Provided bit operation idea
+[Seeds corresponding to base](https://github.com/bcgsc/ntHash) - Provided unique values for each nucleotide A, G, T, and C
