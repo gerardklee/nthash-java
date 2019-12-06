@@ -17,4 +17,4 @@ Genomic information is important for analyses of species and diseases. If there 
 
 ## References
 1. [ntHash: recursive nucleotide hashing](https://academic.oup.com/bioinformatics/article/32/22/3492/2525588) - Provided bit operation idea <br />
-2. [Seeds corresponding to base](https://github.com/bcgsc/ntHash) - Provided unique values for each nucleotide A, G, T, and C <br />
+2. [Unique Seeds/Values](https://github.com/bcgsc/ntHash) - Provided unique values for each nucleotide A, G, T, and C <br />
