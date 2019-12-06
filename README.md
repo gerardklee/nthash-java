@@ -9,7 +9,7 @@ Genomic information is important for analyses of species and diseases. If there 
 2. On search.maven.org, type in "nthash-java", click on the version, and the jar file can be downloaded.
 3. Once downloaded, one can configure the buildpath and add this JAR file on JAVA IDE such as Eclipse.
 
-## Build with
+## Built with
 1. [Maven](https://maven.apache.org/) - Dependency Management <br />
 2. [H2](https://www.h2database.com/html/main.html) - Database Engine <br />
 3. [JUnit](https://junit.org/junit5/) - Testing Framework <br />
