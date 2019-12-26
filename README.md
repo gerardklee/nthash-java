@@ -7,7 +7,7 @@ Genomic information is important for analyses of species and diseases. If there 
 ## How to use the program
 1. This program is released to the Central Repository and can be found on search.maven.org.
 2. On search.maven.org, type in "nthash-java", click on the version, and the jar file can be downloaded.
-3. Once downloaded, one can configure the buildpath and add this JAR file on JAVA IDE such as Eclipse.
+3. Once downloaded, one can configure the buildpath and add this JAR file on Java IDE such as Eclipse.
 
 ## Built with
 1. [Maven](https://maven.apache.org/) - Dependency Management <br />
