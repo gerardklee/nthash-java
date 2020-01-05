@@ -78,7 +78,7 @@ public class DiskSequence implements Sequence {
 
 		// now, insert next corresponding hash values to the db starting from index 1
 		int ptr = 0;
-		long dnaStart = k + 1; // set 4 because initial hashval is already in db at index 0
+		long dnaStart = k + 1;
 		long fileStart = k + 1;
 		while((character = buffer.read()) != -1) {
 			if (!isGood((char) character)) {
