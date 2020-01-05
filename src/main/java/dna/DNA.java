@@ -138,7 +138,7 @@ public class DNA {
 		char[] dnaArray = new char[k];
 		long dnaHashVal = 0;
 		
-		// insert initial hash value into the database (need to clear the table in lujing's lesson)
+		// insert initial hash value into the database
 		for (int i = 0; i < k; i++) {
 			character = (char) buffer.read();
 			System.out.println("in dnaArray: " + (char) character);
