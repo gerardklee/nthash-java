@@ -1,5 +1,5 @@
 # nthash-java
-This program is used to search for all possible k-mer substrings in a really long DNA sequence using multi-threading, Rabin-Karp algorithm and rolling hash.
+This program is used to search for all possible k-mer substrings in a really long DNA sequence using multi-threading, Rabin-Karp algorithm and rolling hash (using bit rotation).
 
 ## Description
 Genomic information is important for analyses of species and diseases. If there are many specific k-mers in a genome, that might mean something; it might be the emergence of a new gene or it might denote a certain disease. Unfortunately, there is no Java version of this program for such analyses. So, this program--as the name of the program says--efficiently searches all possible k-mers in a DNA sequence in Java.
